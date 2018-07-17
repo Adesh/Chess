@@ -13,6 +13,9 @@ import {
 } from 'react-native';
 
 import { StackActions, NavigationActions } from 'react-navigation';
+//import { Worker } from 'react-native-workers';
+
+//import * as Stockfish from './Stockfish';
 
 import Icon          from 'react-native-vector-icons/Ionicons';
 let Chess = require('chess.js/chess').Chess;
@@ -28,7 +31,8 @@ const {height, width} = Dimensions.get('window');
 
 export default class GameVsComp extends Component { 
   chess = new Chess();/* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
-  
+  //stockfish = Stockfish.STOCKFISH();
+
   constructor(props) {
     super(props);
     this.state = {
@@ -50,6 +54,24 @@ export default class GameVsComp extends Component {
     } 
   }
   
+  componentDidMount() {
+    //console.log(Stockfish);
+    //this.stockfish.postMessage("go depth 15");
+
+    //this.stockfish.onmessage = function(event) {
+      //NOTE: Web Workers wrap the response in an object.
+    //  console.log("[Stockfish Event]:",event.data ? event.data : event);
+    //};
+
+    // create a new worker
+    //this.worker = new Worker("./Stockfish.js");
+
+    // receive messages from worker
+    //this.worker.onmessage = (message) => {
+    //  console.log("Got message from worker", message);
+    //}
+  }
+
   componentDidUpdate = () => {
     var chessInstance = this.state._chess;
 
