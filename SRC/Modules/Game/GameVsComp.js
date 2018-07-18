@@ -15,7 +15,7 @@ import {
 import { StackActions, NavigationActions } from 'react-navigation';
 //import { Worker } from 'react-native-workers';
 
-//import * as Stockfish from './Stockfish';
+import * as Stockfish from './StockfishEngine';
 
 import Icon          from 'react-native-vector-icons/Ionicons';
 let Chess = require('chess.js/chess').Chess;
