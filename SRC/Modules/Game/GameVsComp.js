@@ -9,13 +9,13 @@ import {
   Image,
   AsyncStorage,
   Modal,
-  StatusBar
+  StatusBar,
 } from 'react-native';
 
-import { StackActions, NavigationActions } from 'react-navigation';
-//import { Worker } from 'react-native-workers';
+import {Button as Button2} from 'react-native';
 
-import * as Stockfish from './StockfishEngine';
+import { StackActions, NavigationActions } from 'react-navigation';
+import { Thread } from 'react-native-threads';
 
 import Icon          from 'react-native-vector-icons/Ionicons';
 let Chess = require('chess.js/chess').Chess;
@@ -51,25 +51,30 @@ export default class GameVsComp extends Component {
       _gameLeaveModal:false,
       _gameHistoryModal:false,
       _gameHintModal: false,
+
+
+      messages: []
     } 
   }
-  
+
+  workerThread = null;
+
   componentDidMount() {
-    //console.log(Stockfish);
-    //this.stockfish.postMessage("go depth 15");
+    this.workerThread = new Thread('./index.thread.js');
+    this.workerThread.onmessage = this.handleMessage;
+  }
 
-    //this.stockfish.onmessage = function(event) {
-      //NOTE: Web Workers wrap the response in an object.
-    //  console.log("[Stockfish Event]:",event.data ? event.data : event);
-    //};
+  componentWillUnmount() {
+    this.workerThread.terminate();
+    this.workerThread = null;
+  }
 
-    // create a new worker
-    //this.worker = new Worker("./Stockfish.js");
+  handleMessage = message => {
+    console.log(`APP: got message ${message}`);
 
-    // receive messages from worker
-    //this.worker.onmessage = (message) => {
-    //  console.log("Got message from worker", message);
-    //}
+    this.setState(state => {
+      return { messages: [...state.messages, message] };
+    });
   }
 
   componentDidUpdate = () => {
@@ -192,6 +197,9 @@ export default class GameVsComp extends Component {
             backgroundColor="transparent"
             barStyle="dark-content" 
        />
+        <Button2 title="Send Message To Worker Thread" onPress={() => {
+          this.workerThread.postMessage(`\"rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2\""`)
+        }} />
 
           {Modal2(
             this.state._gameOverModal,

@@ -1,8 +1,54 @@
-var stockfish = require("./Stockfish.js");
+import { self } from 'react-native-threads';
+
+var stockfish = require("./SRC/Modules/Game/Stockfish.js");
 var engine = stockfish();
+
 var position = "startpos";
 var got_uci;
 var started_thinking;
+
+
+// listen for messages
+self.onmessage = (message) => {
+    var match;
+    let line = message;
+    console.log("Line: " + line)
+    
+    if (typeof line !== "string") {
+        console.log("Got line:");
+        console.log(typeof line);
+        console.log(line);
+        return;
+    }
+    
+    if (!got_uci && line === "uciok") {
+        got_uci = true;
+        if (position) {
+            send("position " + position);
+            send("eval");
+            send("d");
+        }
+        
+        send("go ponder");
+    } else if (!started_thinking && line.indexOf("info depth") > -1) {
+        console.log("Thinking...");
+        started_thinking = true;
+        setTimeout(function ()
+        {
+            send("stop");
+        }, 1000 * 10);
+    } else if (line.indexOf("bestmove") > -1) {
+        match = line.match(/bestmove\s+(\S+)/);
+        if (match) {
+            console.log("Best move: " + match[1]);
+            process.exit();
+        }
+    }
+}
+
+// send a message, strings only
+self.postMessage('uci');
+
 
 function send(str)
 {
@@ -10,7 +56,7 @@ function send(str)
     engine.postMessage(str);
 }
 
-if (process.argv[2] === "--help") {
+/* if (process.argv[2] === "--help") {
     console.log("Usage: node simple_node.js [FEN OR move1 move2 ...moveN]");
     console.log("");
     console.log("Examples:");
@@ -78,4 +124,4 @@ engine.onmessage = function (line)
     }
 }());
 
-send("uci");ˀ
+send("uci"); */
