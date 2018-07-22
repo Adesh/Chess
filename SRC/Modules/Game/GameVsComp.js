@@ -15,7 +15,6 @@ import {
 import {Button as Button2} from 'react-native';
 
 import { StackActions, NavigationActions } from 'react-navigation';
-import { Thread } from 'react-native-threads';
 
 import Icon          from 'react-native-vector-icons/Ionicons';
 let Chess = require('chess.js/chess').Chess;
@@ -57,17 +56,6 @@ export default class GameVsComp extends Component {
     } 
   }
 
-  workerThread = null;
-
-  componentDidMount() {
-    this.workerThread = new Thread('./index.thread.js');
-    this.workerThread.onmessage = this.handleMessage;
-  }
-
-  componentWillUnmount() {
-    this.workerThread.terminate();
-    this.workerThread = null;
-  }
 
   handleMessage = message => {
     console.log(`APP: got message ${message}`);
@@ -197,9 +185,6 @@ export default class GameVsComp extends Component {
             backgroundColor="transparent"
             barStyle="dark-content" 
        />
-        <Button2 title="Send Message To Worker Thread" onPress={() => {
-          this.workerThread.postMessage(`\"rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2\""`)
-        }} />
 
           {Modal2(
             this.state._gameOverModal,

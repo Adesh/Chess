@@ -4,25 +4,23 @@ import {
   Text,
   View,
   Dimensions,
+  StatusBar
 } from 'react-native';
-
 import Icon from 'react-native-vector-icons/Ionicons';
+
 import Button from '../Helper/GetButton';
 import GLOBAL_VAR from '../Globals';
 
 const { width } = Dimensions.get('window');
 
-export default class Welcome extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      
-    } 
-  }
-
+class Welcome extends Component {
   render() {
     return ( 
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary,}]}>
+          <StatusBar
+            backgroundColor="transparent"
+            barStyle="dark-content" 
+        />
           <Text 
             style={[styles.headingTxt,{color: GLOBAL_VAR.COLOR.THEME['swan'].secondaryText,}]}>
             Chess
@@ -58,7 +56,7 @@ export default class Welcome extends Component {
               size={GLOBAL_VAR.FONT.HEADER}
               color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
             />,
-            ()=>this.navigate('Setting'),
+            ()=>this.navigate('Settings'),
             styles.btn
           )}
 
@@ -75,6 +73,8 @@ export default class Welcome extends Component {
   }
   
 };
+
+export default Welcome;
 
 const styles = StyleSheet.create({
   maincontainer: {
