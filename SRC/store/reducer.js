@@ -1,5 +1,5 @@
 import * as actionTypes from './actions';
-
+import GLOBAL_VAR    from '../Globals';
 const initialState = {
     theme : {
         background: "black",
@@ -8,21 +8,11 @@ const initialState = {
     },
 
     settings: {
-        difficulty:'5', // Beginer:5, Pro:8, GrandMaster: 10
-  		sound: true,
-  		vibration: true,
-        statusBar:false,
-  		showPossMove:true,
-        showLastMove:true,
-        diffPickerModal: false,
-  		clearStateModal: false,
-        themePickerModal: false,
-  		//vsHumanTotal:0,
-  		//vsHumanWon:0,
-  		//vsHumanScore:0,
-  		vsCompTotal:0,
-  		vsCompWon:0,
-  		vsCompScore:0,
+        difficulty: GLOBAL_VAR.APP_SETTING.DEFAULT.difficulty, //'8', // Beginer:5, Pro:8, GrandMaster: 10
+  		sound: GLOBAL_VAR.APP_SETTING.DEFAULT.sound, //true,
+  		vibration: GLOBAL_VAR.APP_SETTING.DEFAULT.vibration, //true,
+        showPossMove: GLOBAL_VAR.APP_SETTING.DEFAULT.showPossMove, //true,
+        showLastMove: GLOBAL_VAR.APP_SETTING.DEFAULT.showLastMove //false
     }
 };
 

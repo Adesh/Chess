@@ -2,10 +2,7 @@ import React from 'react';
 import {
   Platform,
   Dimensions,
-  Vibration
 } from 'react-native';
-
-var Sound         = require('react-native-sound');
 
 const {height, width} = Dimensions.get('window');
 
@@ -23,35 +20,13 @@ module.exports = {
   TERMS_OF_USE_URL:'https://www.Euristico.com/Chess/termsofuse/',
   
   APP_SETTING:{
-    SOUNDS: {
-      MOVE_FX: new Sound((Platform.OS != 'ios')?'movesound.wav':'../../Resources/moveSound.wav', Sound.MAIN_BUNDLE, error=>(error)?console.log('Sound not loaded'):console.log('Sound loaded')),
+    DEFAULT: {
+      difficulty: '8', // Beginer:5, Pro:8, GrandMaster: 10
+  		sound: true,
+  		vibration: true,
+      showPossMove: true,
+      showLastMove: false
     },
-    NOTIFY: function(){
-      try{
-        if(this.VIBRATION == true){ 
-          Vibration.vibrate();
-        }
-        if(this.SOUND == true){
-          this.SOUNDS.MOVE_FX.play(success=>{
-            //(success)?console.log('Sound Played'):console.log('Sound not played')
-            this.SOUNDS.MOVE_FX.stop();
-          });
-        }  
-      }
-      catch(e){
-        console.log(e);
-      }  
-    },
-    SOUND:true,
-    VIBRATION:true,
-    STATUS_BAR:true,
-    SHOW_POSS_MOVE:true,
-    SHOW_LAST_MOVE:true,
-    DIFFICULTY:5,//5,8,10
-    TOTAL_PLAYED:0,
-    TOTAL_LOST:0,
-    TOTAL_WON:0,
-    THEME:'swan'
   },
 
   USER_AUTH: {
@@ -116,7 +91,6 @@ module.exports = {
     },*/
   },
 
-  PLATFORM:(Platform.OS === 'ios') ? 'IOS' : 'ANDROID',
   BACK_EXIT_TIMESTAMP:'',
   NAVIGATOR:'', /* not a good practise! used by API.js. Keep it till we figure out a better way */
   

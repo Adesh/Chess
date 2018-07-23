@@ -10,12 +10,15 @@ import {
   AsyncStorage,
   Modal,
   StatusBar,
+  Vibration,
+  Platform
 } from 'react-native';
-
+var Sound         = require('react-native-sound');
 import {Button as Button2} from 'react-native';
 
 import { StackActions, NavigationActions } from 'react-navigation';
-
+import { connect } from 'react-redux';
+import * as actionTypes from '../../store/actions';
 import Icon          from 'react-native-vector-icons/Ionicons';
 let Chess = require('chess.js/chess').Chess;
 import GLOBAL_VAR    from '../../Globals';
@@ -28,9 +31,19 @@ import API           from '../../Helper/API';
 
 const {height, width} = Dimensions.get('window');
 
-export default class GameVsComp extends Component { 
+class GameVsComp extends Component { 
   chess = new Chess();/* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
   //stockfish = Stockfish.STOCKFISH();
+
+  FX = new Sound(
+    (Platform.OS !== 'ios')?
+      'movesound.wav':
+      '../../Resources/moveSound.wav', 
+    Sound.MAIN_BUNDLE, 
+    error => error?
+              console.log('Sound not loaded'):
+              null
+  );
 
   constructor(props) {
     super(props);
@@ -125,7 +138,7 @@ export default class GameVsComp extends Component {
           if(this.state._iAm != chessInstance.turn()){
             
             const urlLink = '?d='
-                    +GLOBAL_VAR.APP_SETTING.DIFFICULTY
+                    +this.props.settings.difficulty
                     +'&fen='
                     +encodeURIComponent(chessInstance.fen());
             
@@ -156,8 +169,8 @@ export default class GameVsComp extends Component {
                       to: resTo 
                     });
                   }
-                  
-                  GLOBAL_VAR.APP_SETTING.NOTIFY();
+                
+                  this.notify();
                   
                   return this.setState({
                     _selectedPiece: -1,
@@ -292,7 +305,7 @@ export default class GameVsComp extends Component {
                     //add promotion support
                   });
 
-                  GLOBAL_VAR.APP_SETTING.NOTIFY();
+                  this.notify();
                       
                   return this.setState({
                     _selectedPiece: -1,
@@ -410,12 +423,6 @@ export default class GameVsComp extends Component {
                     borderRadius:3
                   }}
                 >  
-                
-                {/*<ActivityIndicator
-                  animating={this.state._turn == this.state._iAm}
-                  size="small"
-                  color={chessInstance.in_check() == true?'red':GLOBAL_VAR.COLOR.PRIMARY}  
-                />*/}
               
                 <Text style={{color:'white'}} >
                   Your turn{chessInstance.in_check() == true?' - Check':''}
@@ -426,6 +433,13 @@ export default class GameVsComp extends Component {
 
         </View>  
     );
+  }
+
+  notify = () => {
+    if(this.props.settings.vibration === true) 
+      Vibration.vibrate();
+    if(this.props.settings.sound === true)
+      this.FX.play(this.FX.stop); 
   }
 
   navigate = (route)=>{
@@ -586,7 +600,7 @@ export default class GameVsComp extends Component {
                       }
                       
 
-                      GLOBAL_VAR.APP_SETTING.NOTIFY();
+                      this.notify();
                       
                       return this.setState({
                         _selectedPiece: -1,
@@ -625,7 +639,7 @@ export default class GameVsComp extends Component {
       pColor = GLOBAL_VAR.COLOR.CELL_LIGHT;
     }
 
-    if(GLOBAL_VAR.APP_SETTING.SHOW_LAST_MOVE == true){
+    if(this.props.settings.showLastMove == true){
       if(this.state._lastMove){
         if(this.state._lastMove != {}){
           if(this.state._lastMove.from && this.state._lastMove.to){
@@ -638,7 +652,8 @@ export default class GameVsComp extends Component {
       }
     }
 
-    if(GLOBAL_VAR.APP_SETTING.SHOW_POSS_MOVE == true){
+    //if(GLOBAL_VAR.APP_SETTING.SHOW_POSS_MOVE == true){
+    if(this.props.settings.showPossMove == true){
       if(this.state._selectedPiece != -1){
         if(this.state._possMoves.indexOf(_cell) != -1){
           pColor = '#FF9419';
@@ -923,7 +938,7 @@ class HintModalComp extends Component{
 
   componentWillMount = () => {
     const urlLink = '?d='
-                    +GLOBAL_VAR.APP_SETTING.DIFFICULTY
+                    +this.props.settings.difficulty
                     +'&fen='
                     +encodeURIComponent(this.props.chess.fen());
     
@@ -997,6 +1012,22 @@ class HintModalComp extends Component{
   }
 
 }  
+
+
+const mapStateToProps = state => {
+  return {
+    theme: state.theme,
+    settings: state.settings
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(GameVsComp);
+
 
 const styles = StyleSheet.create({
   maincontainer: {

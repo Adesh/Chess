@@ -4,16 +4,37 @@ import {
   Text,
   View,
   Dimensions,
-  StatusBar
+  StatusBar,
+  AsyncStorage
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import { connect } from 'react-redux';
+import * as actionTypes from '../store/actions';
 import Button from '../Helper/GetButton';
 import GLOBAL_VAR from '../Globals';
 
 const { width } = Dimensions.get('window');
 
 class Welcome extends Component {
+  async componentDidMount() {
+    const settings = [ 'difficulty', 'sound', 'vibration', 'showPossMove', 'showLastMove' ];
+    for(let setting of settings) {
+      const val = await AsyncStorage.getItem(setting);
+      if(val == null) {
+        await AsyncStorage.setItem(setting, GLOBAL_VAR.APP_SETTING.DEFAULT[setting])
+      } else {
+        let parseAuto = (val) => {
+          if(val === 'true') return true;
+          if(val === 'false') return false;
+          if(!isNaN(val)) return parseInt(val);
+          return val;
+        }
+        this.props.onSettingsChange(setting,parseAuto(val));
+      }
+    }
+
+  }
+
   render() {
     return ( 
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary,}]}>
@@ -74,7 +95,26 @@ class Welcome extends Component {
   
 };
 
-export default Welcome;
+const mapStateToProps = state => {
+  return {
+    theme: state.theme,
+    settings: state.settings
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onSettingsChange : (key, val) => dispatch({
+      type: actionTypes.CHANGE_SETTINGS,
+      key: key,
+      val: val
+    }),
+
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Welcome);
+
 
 const styles = StyleSheet.create({
   maincontainer: {
