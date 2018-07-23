@@ -16,6 +16,7 @@ import GLOBAL_VAR from '../Globals';
 const { width } = Dimensions.get('window');
 
 class Welcome extends Component {
+  
   async componentDidMount() {
     const settings = [ 'difficulty', 'sound', 'vibration', 'showPossMove', 'showLastMove' ];
     for(let setting of settings) {

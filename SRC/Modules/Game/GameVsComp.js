@@ -11,7 +11,8 @@ import {
   Modal,
   StatusBar,
   Vibration,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
 var Sound         = require('react-native-sound');
 import {Button as Button2} from 'react-native';
@@ -60,7 +61,7 @@ class GameVsComp extends Component {
       //game status
       _gameOverModal:false,
       _gameStatus:'',
-      _gameLeaveModal:false,
+      //_gameLeaveModal:false,
       _gameHistoryModal:false,
       _gameHintModal: false,
 
@@ -221,7 +222,8 @@ class GameVsComp extends Component {
             ()=>this.setState({_gameOverModal:false})
           )}
 
-          {Modal2(
+          
+          {/*Modal2(
             this.state._gameLeaveModal,
             'Leave Game?',
             <View style={{height:'auto'}}>
@@ -241,7 +243,7 @@ class GameVsComp extends Component {
             </View>
             ,
             ()=>this.setState({_gameLeaveModal:false})
-          )}
+          )*/}
 
           <Modal 
             animationType='fade' 
@@ -327,7 +329,7 @@ class GameVsComp extends Component {
                 size={30} 
                 color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
               />,
-              ()=>this.setState({_gameLeaveModal:true}),
+              this.leaveGame,
               {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}
             )}
             
@@ -376,7 +378,7 @@ class GameVsComp extends Component {
                 size={30}
                 color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText} 
               />,
-              ()=>this.navigate('Setting'),
+              ()=>this.navigate('Settings'),
               {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}
             )}
           </View>
@@ -435,11 +437,23 @@ class GameVsComp extends Component {
     );
   }
 
+  leaveGame = () => {
+    Alert.alert(
+      'Leave Game',
+      'Are you sure about leaving the game?',
+      [
+        {text: 'No', onPress: () => {}, style: 'cancel'},
+        {text: 'Yes', onPress: this._reset },
+      ],
+      { cancelable: false }
+    )
+  }
+
   notify = () => {
     if(this.props.settings.vibration === true) 
       Vibration.vibrate();
     if(this.props.settings.sound === true)
-      this.FX.play(this.FX.stop); 
+      this.FX.play(()=>this.FX.stop); 
   }
 
   navigate = (route)=>{
@@ -480,7 +494,7 @@ class GameVsComp extends Component {
 
     return this.setState({
       _gameOverModal:false,
-      _gameLeaveModal:false,
+      //_gameLeaveModal:false,
       _chess:chessInstance
     });
   }

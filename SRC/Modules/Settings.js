@@ -12,21 +12,15 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 
-import { StackActions, NavigationActions } from 'react-navigation';
 import GLOBAL_VAR from '../Globals';
 import Button from '../Helper/GetButton';
-import Modal from '../Helper/GetModal';
 import * as actionTypes from '../store/actions';
 
 const {width} = Dimensions.get('window');
 
 class Settings extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      diffPickerModal: false
-    }
-  }
+
+  
   render() {
     return (
       <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
@@ -35,42 +29,20 @@ class Settings extends Component {
             backgroundColor="transparent"
             barStyle="dark-content" 
         />
-
-      	{Modal(
-            this.state.diffPickerModal,
-            'Select Difficulty Level',
-            <View>
-              
-            	<Picker
-      				  selectedValue={this.props.settings.difficulty.toString()}
-      				  onValueChange={d => this.updateSetting('difficulty',d)}>
-      				  <Picker.Item label="Beginer" value="5" />
-      				  <Picker.Item label="Pro" value="8" />
-      				  <Picker.Item label="GrandMaster" value="10" />
-      				</Picker>
-
-	            <View style={{flexDirection:'row',justifyContent:'flex-end',marginTop:20}}>
-	                {Button(
-	                  <Text style={{fontWeight:'bold'}}>Select</Text>,
-	                  ()=>this.setState({_diffPickerModal: false}),
-	                  {marginRight:20,padding:5}
-	                )}                
-	            </View>  
-            </View>
-            ,
-            ()=>this.setState({_diffPickerModal:false})
-        )}
-
     
         <ScrollView style={{flex:1,marginTop:50}}>
         	
         	<View style={styles.settingItem}>
         		<Text>Difficulty</Text>
-        		{Button(
-        			<Text>{this._interpreteDifficulty(this.props.settings.difficulty)}</Text>,
-        			()=>this.setState({_diffPickerModal: true}),
-        			{marginRight:10}
-        		)}
+            <Picker
+      				  selectedValue={this.props.settings.difficulty.toString()}
+      				  onValueChange={d => this.updateSetting('difficulty',d)}
+                style={{ height: 45, width: 130, alignItems:'flex-end',justifyContent:'flex-end' }}
+            >
+      				  <Picker.Item label="Beginer" value="5" />
+      				  <Picker.Item label="Pro" value="8" />
+      				  <Picker.Item label="GrandMaster" value="10" />
+      			</Picker>
         	</View>
 
         	<View style={styles.settingItem}>
@@ -89,9 +61,7 @@ class Settings extends Component {
   		  	    style={{marginBottom: 10}}
   		        value={this.props.settings.vibration} 
   		    />
-        	</View>
-
-          
+        	</View>   
 
           <View style={styles.settingItem}>
             <Text>Show Possible Moves</Text>
@@ -125,7 +95,7 @@ class Settings extends Component {
   }
 
   _interpreteDifficulty = (d) => {
-    switch(d) {
+    switch(d.toString()) {
       case '5': return 'Beginner';
       case '8': return 'Pro';
       case '10': return 'GrandMaster';
