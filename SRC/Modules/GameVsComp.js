@@ -14,17 +14,18 @@ import {
   Platform,
   Alert
 } from 'react-native';
-var Sound         = require('react-native-sound');
 
+
+let Chess = require('chess.js/chess').Chess;
+var Sound         = require('react-native-sound');
+import Icon          from 'react-native-vector-icons/Ionicons';
 import { StackActions, NavigationActions } from 'react-navigation';
 import { connect } from 'react-redux';
+
 import * as actionTypes from '../store/actions';
-import Icon          from 'react-native-vector-icons/Ionicons';
-let Chess = require('chess.js/chess').Chess;
 import GLOBAL_VAR    from '../Globals';
 import Toast         from '../Helper/GetToast';
 import Button        from '../Helper/GetButton';
-import Modal2        from '../Helper/GetModal';
 import API           from '../Helper/API';
 
 const {height, width} = Dimensions.get('window');
@@ -36,7 +37,7 @@ class GameVsComp extends Component {
   FX = new Sound(
     (Platform.OS !== 'ios')?
       'movesound.wav':
-      '../../Resources/moveSound.wav', 
+      '../Resources/moveSound.wav', 
     Sound.MAIN_BUNDLE, 
     error => error?
               console.log('Sound not loaded'):
@@ -56,7 +57,7 @@ class GameVsComp extends Component {
       _possMoves:[],
       _lastMove:{},
       //game status
-      _gameOverModal:false,
+      //_gameOverModal:false,
       _gameStatus:'',
       //_gameLeaveModal:false,
       _gameHistoryModal:false,
@@ -125,10 +126,12 @@ class GameVsComp extends Component {
               }
             }  
 
-            return setTimeout(()=>this.setState({
-              _gameOverModal: true,
-              _gameStatus: gameStatus
-            }), 800);
+            return setTimeout(() => {
+              this.gameOver();
+              this.setState({
+                _gameStatus: gameStatus
+              })
+            }, 800);
           }  
     }
     else{
@@ -197,51 +200,7 @@ class GameVsComp extends Component {
             barStyle="dark-content" 
        />
 
-          {Modal2(
-            this.state._gameOverModal,
-            this.state._gameStatus,
-            <View>
-              <Text>Play Again?</Text>
-              <View style={{flexDirection:'row',justifyContent:'flex-end',marginTop:20}}>
-                {Button(
-                  <Text style={{fontWeight:'bold'}}>Close</Text>,
-                  ()=>this.setState({_gameOverModal:false}),
-                  {marginRight:20,padding:5}
-                )}
-                {Button(
-                  <Text style={{fontWeight:'bold'}}>Ok</Text>,
-                  ()=>this._reset(),
-                  {marginRight:20,padding:5}
-                )}                
-              </View>  
-            </View>
-            ,
-            ()=>this.setState({_gameOverModal:false})
-          )}
-
-          
-          {/*Modal2(
-            this.state._gameLeaveModal,
-            'Leave Game?',
-            <View style={{height:'auto'}}>
-              <Text style={{flexWrap:'wrap'}}>Are you sure about leaving the game?</Text>
-              <View style={{flexDirection:'row',justifyContent:'flex-end',marginTop:20}}>
-                {Button(
-                  <Text style={{fontWeight:'bold'}}>No</Text>,
-                  ()=>this.setState({_gameLeaveModal:false}),
-                  {marginRight:20,padding:5}
-                )}
-                {Button(
-                  <Text style={{fontWeight:'bold'}}>Yes</Text>,
-                  ()=>this._reset(),
-                  {marginRight:20,padding:5}
-                )}                
-              </View>  
-            </View>
-            ,
-            ()=>this.setState({_gameLeaveModal:false})
-          )*/}
-
+        
           <Modal 
             animationType='fade' 
             transparent={true} 
@@ -405,10 +364,20 @@ class GameVsComp extends Component {
     );
   }
 
+  gameOver = () => Alert.alert(
+      this.state._gameStatus,
+      'Play Again?',
+      [
+        {text: 'No', onPress: () => {}, style: 'cancel'},
+        {text: 'Yes', onPress: this.reset },
+      ],
+      { cancelable: false }
+  );
+
   hint = async () => {
-    const urlLink = `?d=${this.props.settings.difficulty}&fen=${encodeURIComponent(this.props.chess.fen())}`
-    let res = API(urlLink);
-    let res = res.split(' ');
+    const urlLink = `?d=${this.props.settings.difficulty}&fen=${encodeURIComponent(this.state._chess.fen())}`
+    let res = await API(urlLink);
+    res = res.split(' ');
     let resFrom  = res[1].substr(0,2);
     let resTo    = res[1].substr(2,2);
 
@@ -416,50 +385,48 @@ class GameVsComp extends Component {
     try{
       promotion  = res[1].substr(4);
     }catch(e){}
-        
-    let suggestion; 
-    if(promotion == '')        
-        suggestion = {from:resFrom,to:resTo};
-    else
-        suggestion = {from:resFrom,to:resTo,promotion:promotion};  
-
-    let makeMove = (from,to) => {
-      chessInstance.move({ 
-        from, to 
-        //add promotion support
-      });
-
-      this.notify();
-          
-      return this.setState({
-        _selectedPiece: -1,
-        _possMoves: [],
-        _gameHintModal:false,
-        _chess:chessInstance
-      });
-    };     
-    //return this.setState({ _hint: suggestion });
-    Alert.alert(
-      'Hint',
-      `${this.props.getPiece(suggestion.from)} ${suggestion.from} -> ${suggestion.to}`,
-      [
-        {text: 'No', onPress: () => {}, style: 'cancel'},
-        {text: 'Yes', onPress: this._reset },
-      ],
-      { cancelable: false }
-    );
+       
+    return this.makeMove(resFrom, resTo, promotion);
   }
 
-  leaveGame = () => {
-    Alert.alert(
+  makeMove = (from, to, promotion) => {
+    let chess = {...this.state._chess};
+    chess.move({ from, to, promotion });
+    this.notify();
+    return this.setState({
+      _selectedPiece: -1,
+      _possMoves: [],
+      _chess:chess
+    });
+  };     
+
+  leaveGame = () => Alert.alert(
       'Leave Game',
       'Are you sure about leaving the game?',
       [
         {text: 'No', onPress: () => {}, style: 'cancel'},
-        {text: 'Yes', onPress: this._reset },
+        {text: 'Yes', onPress: this.reset },
       ],
       { cancelable: false }
-    )
+  );
+
+  reset = () => {
+    var chessInstance = this.state._chess;
+    chessInstance.reset();
+    
+    setTimeout(()=>{
+      const resetAction = StackActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: 'Welcome' })],
+      });
+      this.props.navigation.dispatch(resetAction);      
+    },50);
+
+    return this.setState({
+      //_gameOverModal:false,
+      //_gameLeaveModal:false,
+      _chess:chessInstance
+    });
   }
 
   notify = () => {
@@ -491,25 +458,6 @@ class GameVsComp extends Component {
         }
     }
     catch(e){}
-  }
-
-  _reset = () => {
-    var chessInstance = this.state._chess;
-    chessInstance.reset();
-    
-    setTimeout(()=>{
-      const resetAction = StackActions.reset({
-        index: 0,
-        actions: [NavigationActions.navigate({ routeName: 'Welcome' })],
-      });
-      this.props.navigation.dispatch(resetAction);      
-    },50);
-
-    return this.setState({
-      _gameOverModal:false,
-      //_gameLeaveModal:false,
-      _chess:chessInstance
-    });
   }
 
   getChessBoard = (_whiteSide) => {
@@ -704,74 +652,74 @@ class GameVsComp extends Component {
     if(_pieceName=='k' && _pieceColor=='w'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/kW.png')}
+          source={require('../Resources/Themes/Classic/kW.png')}
       />;
     }
     else if(_pieceName=='q' && _pieceColor=='w'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/qW.png')}
+          source={require('../Resources/Themes/Classic/qW.png')}
       />;
     }
     else if(_pieceName=='r' && _pieceColor=='w'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/rW.png')}
+          source={require('../Resources/Themes/Classic/rW.png')}
       />;
     }
     else if(_pieceName=='b' && _pieceColor=='w'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/bW.png')}
+          source={require('../Resources/Themes/Classic/bW.png')}
       />;
     }
     else if(_pieceName=='n' && _pieceColor=='w'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/nW.png')}
+          source={require('../Resources/Themes/Classic/nW.png')}
       />;
     }
     else if(_pieceName=='p' && _pieceColor=='w'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/pW.png')}
+          source={require('../Resources/Themes/Classic/pW.png')}
       />;
     }
 
     if(_pieceName=='k' && _pieceColor=='b'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/kB.png')}
+          source={require('../Resources/Themes/Classic/kB.png')}
       />;
     }
     else if(_pieceName=='q' && _pieceColor=='b'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/qB.png')}
+          source={require('../Resources/Themes/Classic/qB.png')}
       />;
     }
     else if(_pieceName=='r' && _pieceColor=='b'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/rB.png')}
+          source={require('../Resources/Themes/Classic/rB.png')}
       />;
     }
     else if(_pieceName=='b' && _pieceColor=='b'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/bB.png')}
+          source={require('../Resources/Themes/Classic/bB.png')}
       />;
     }
     else if(_pieceName=='n' && _pieceColor=='b'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/nB.png')}
+          source={require('../Resources/Themes/Classic/nB.png')}
       />;
     }
     else if(_pieceName=='p' && _pieceColor=='b'){
       return <Image
           style={styles.piece}
-          source={require('../../Resources/Themes/Classic/pB.png')}
+          source={require('../Resources/Themes/Classic/pB.png')}
       />;
     }
 
@@ -875,74 +823,74 @@ class GameVsComp extends Component {
       if(_pieceName=='k' && _pieceColor=='w'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/kW.png')}
+            source={require('../Resources/Themes/Classic/kW.png')}
         />;
       }
       else if(_pieceName=='q' && _pieceColor=='w'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/qW.png')}
+            source={require('../Resources/Themes/Classic/qW.png')}
         />;
       }
       else if(_pieceName=='r' && _pieceColor=='w'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/rW.png')}
+            source={require('../Resources/Themes/Classic/rW.png')}
         />;
       }
       else if(_pieceName=='b' && _pieceColor=='w'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/bW.png')}
+            source={require('../Resources/Themes/Classic/bW.png')}
         />;
       }
       else if(_pieceName=='n' && _pieceColor=='w'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/nW.png')}
+            source={require('../Resources/Themes/Classic/nW.png')}
         />;
       }
       else if(_pieceName=='p' && _pieceColor=='w'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/pW.png')}
+            source={require('../Resources/Themes/Classic/pW.png')}
         />;
       }
 
       if(_pieceName=='k' && _pieceColor=='b'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/kB.png')}
+            source={require('../Resources/Themes/Classic/kB.png')}
         />;
       }
       else if(_pieceName=='q' && _pieceColor=='b'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/qB.png')}
+            source={require('../Resources/Themes/Classic/qB.png')}
         />;
       }
       else if(_pieceName=='r' && _pieceColor=='b'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/rB.png')}
+            source={require('../Resources/Themes/Classic/rB.png')}
         />;
       }
       else if(_pieceName=='b' && _pieceColor=='b'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/bB.png')}
+            source={require('../Resources/Themes/Classic/bB.png')}
         />;
       }
       else if(_pieceName=='n' && _pieceColor=='b'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/nB.png')}
+            source={require('../Resources/Themes/Classic/nB.png')}
         />;
       }
       else if(_pieceName=='p' && _pieceColor=='b'){
         return <Image
             style={styles.piece}
-            source={require('../../Resources/Themes/Classic/pB.png')}
+            source={require('../Resources/Themes/Classic/pB.png')}
         />;
       }
 
