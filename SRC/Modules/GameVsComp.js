@@ -28,12 +28,12 @@ import Toast         from '../Helper/GetToast';
 import Button        from '../Helper/GetButton';
 import API           from '../Helper/API';
 
+/* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
+
 const {height, width} = Dimensions.get('window');
 
 class GameVsComp extends Component { 
-  chess = new Chess();/* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
-  //stockfish = Stockfish.STOCKFISH();
-
+  
   FX = new Sound(
     (Platform.OS !== 'ios')?
       'movesound.wav':
@@ -56,29 +56,12 @@ class GameVsComp extends Component {
       _selectedPiece:-1,
       _possMoves:[],
       _lastMove:{},
-      //game status
-      //_gameOverModal:false,
       _gameStatus:'',
-      //_gameLeaveModal:false,
-      _gameHistoryModal:false,
-      //_gameHintModal: false,
-
-
-      messages: []
     } 
   }
 
-
-  handleMessage = message => {
-    console.log(`APP: got message ${message}`);
-
-    this.setState(state => {
-      return { messages: [...state.messages, message] };
-    });
-  }
-
   componentDidUpdate = () => {
-    var chessInstance = this.state._chess;
+    let chessInstance = {...this.state._chess};
 
     if(chessInstance.game_over() == true || chessInstance.in_threefold_repetition() == true){
           console.log('Game over');
@@ -104,25 +87,7 @@ class GameVsComp extends Component {
         
             if(chessInstance.in_checkmate() == true || chessInstance.in_stalemate() == true){
               if(chessInstance.turn() == this.state._turn){
-                    this.getStorageVar('TOTAL_WON')
-                    .then((_TOTAL_WON)=>{
-                        
-                        if(_TOTAL_WON == undefined || _TOTAL_WON == null){
-                              AsyncStorage.setItem('TOTAL_WON','1'); 
-                        }
-                        else{
-                          try{
-                              var temp = parseInt(_TOTAL_WON);
-                              temp += 1;
-                              AsyncStorage.setItem('TOTAL_WON',temp.toString());
-                          }
-                          catch(e){
-                              AsyncStorage.setItem('TOTAL_WON','1'); 
-                          }    
-                        }
-
-                    })
-                    .catch((error)=>console.log(error));
+                    console.log('you win');
               }
             }  
 
@@ -191,7 +156,7 @@ class GameVsComp extends Component {
   }
   
   render() {
-    var chessInstance = this.state._chess;
+    let chessInstance = {...this.state._chess};
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
           
@@ -199,54 +164,6 @@ class GameVsComp extends Component {
             backgroundColor="transparent"
             barStyle="dark-content" 
        />
-
-        
-          <Modal 
-            animationType='fade' 
-            transparent={true} 
-            visible={this.state._gameHistoryModal} 
-            onRequestClose={()=>this.setState({_gameHistoryModal:false})} 
-           >
-            <View style={styles.modalContainerStyle} >
-              <View style={styles.modalStyle} >
-                
-                <View>
-                  <View style={{flexDirection:'row',width:width-100,borderBottomWidth:0.5,borderBottomColor:'grey',padding:10,justifyContent:'space-between',alignItems:'center'}}>
-                    <Text style={{fontWeight:'bold'}}>Move History</Text>
-                    {Button(
-                      <Icon name='md-close' color='grey' />,
-                      ()=>this.setState({_gameHistoryModal:false}),
-                      {padding:5}
-                    )}
-                  </View>
-                  <View style={{width:width-100,padding:10}}>
-                    
-
-                    <View style={{flex:1}}>
-              
-                      <ScrollView
-                        style={{flex:1,height:300}}
-                        renderSeparator={()=>{<View style={{borderBottomWidth:1,borderColor:GLOBAL_VAR.COLOR.THEME['swan'].divider}} />}}
-                      >
-                        {this.getMovesHistory()}
-                      </ScrollView>
-                      
-                      <View style={{flexDirection:'row',justifyContent:'flex-end',marginTop:20}}>
-                        {Button(
-                          <Text style={{fontWeight:'bold'}}>Ok</Text>,
-                          ()=>this.setState({_gameHistoryModal:false}),
-                          {marginRight:20,padding:5}
-                        )}                
-                      </View>  
-                    
-                    </View>
-                  </View>   
-                </View>
-
-                
-              </View>
-            </View>
-          </Modal>
 
           <View style={{width:width,flexDirection:'row',paddingTop:20,}}>
             
@@ -282,22 +199,6 @@ class GameVsComp extends Component {
               {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center',paddingRight:20}
             )}
             
-            {Button(
-              <Icon 
-                name={'md-clock'} 
-                size={30} 
-                color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
-              />,
-              ()=>{
-                if(chessInstance.history().length == 0){
-                  return Toast('No moves yet!','short');
-                }
-                else{
-                  return this.setState({_gameHistoryModal:true})
-                }
-              },
-              {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center',paddingRight:20}
-            )}
             
             {Button(
               <Icon 
@@ -365,13 +266,13 @@ class GameVsComp extends Component {
   }
 
   gameOver = () => Alert.alert(
-      this.state._gameStatus,
-      'Play Again?',
-      [
-        {text: 'No', onPress: () => {}, style: 'cancel'},
-        {text: 'Yes', onPress: this.reset },
-      ],
-      { cancelable: false }
+    this.state._gameStatus,
+    'Play Again?',
+    [
+      {text: 'No', onPress: () => {}, style: 'cancel'},
+      {text: 'Yes', onPress: this.reset },
+    ],
+    { cancelable: false }
   );
 
   hint = async () => {
@@ -401,17 +302,17 @@ class GameVsComp extends Component {
   };     
 
   leaveGame = () => Alert.alert(
-      'Leave Game',
-      'Are you sure about leaving the game?',
-      [
-        {text: 'No', onPress: () => {}, style: 'cancel'},
-        {text: 'Yes', onPress: this.reset },
-      ],
-      { cancelable: false }
+    'Leave Game',
+    'Are you sure about leaving the game?',
+    [
+      {text: 'No', onPress: () => {}, style: 'cancel'},
+      {text: 'Yes', onPress: this.reset },
+    ],
+    { cancelable: false }
   );
 
   reset = () => {
-    var chessInstance = this.state._chess;
+    let chessInstance = {...this.state._chess};
     chessInstance.reset();
     
     setTimeout(()=>{
@@ -436,13 +337,11 @@ class GameVsComp extends Component {
       this.FX.play(()=>this.FX.stop); 
   }
 
-  navigate = (route)=>{
-    this.props.navigation.navigate(route);
-  }
+  navigate = (route)=>this.props.navigation.navigate(route)
 
   _backBtn = ()=>{
     try{
-        var chessInstance = this.state._chess;
+        let chessInstance = {...this.state._chess};
         if(chessInstance.turn() == this.state._iAm){
           console.log('undo');
           //return ,'short');
@@ -482,7 +381,7 @@ class GameVsComp extends Component {
   }
   
   _renderCell = (_i,_j,_cell) => {
-    var chessInstance = this.state._chess;
+    let chessInstance = {...this.state._chess};
     const ii = _i;
     const jj = _j;
     const tempCell = this.getCell(ii,jj);
@@ -640,7 +539,7 @@ class GameVsComp extends Component {
   }
   
   getPiece = (_cell) => {
-    var chessInstance = this.state._chess;
+    let chessInstance = {...this.state._chess};
     let piece = chessInstance.get(_cell);
     if(piece==null || piece==undefined){
       return null;
@@ -769,54 +668,6 @@ class GameVsComp extends Component {
       catch (error) {
         console.log('AsyncStorage error: ' + error.message);
       }
-  }
-
-  getMovesHistory = () => {
-    try{
-      var chessInstance = this.state._chess;
-      var list = [];
-      var history = chessInstance.history({ verbose: true });
-      history.reverse();
-      //console.log(history);
-
-      for(var i in history){
-
-        list.push(
-          <View 
-            key={i}
-            style={{ 
-              flexDirection:'row',
-              alignItems:'center',
-              padding:10,
-              justifyContent:'space-between'
-            }} 
-          >
-            <Text style={{fontWeight:'bold',width:50}} >
-              {(history.length-i).toString()}
-            </Text>
-            
-            <View style={{width:50}}>
-              {this.getPieceIcon(history[i].piece,history[i].color)}
-            </View>
-
-            <Text style={{flex:1,fontWeight:'bold'}} >
-              {history[i].from} -> {history[i].to}
-            </Text>
-
-            
-            <View style={{width:50}}>
-              {this.getPieceIcon(history[i].captured,(history[i].color=='w')?'b':'w')}
-            </View>
-
-          </View>
-        );
-      }
-
-      return list;
-    }
-    catch(e){
-      console.log('Exc',e);
-    }  
   }
 
   getPieceIcon = (_pieceName,_pieceColor) => {
