@@ -21,3 +21,11 @@ ios/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+.DS_Store
+SRC/.DS_Store
+SRC/Helper/.DS_Store
+SRC/Module/.DS_Store
+SRC/Resources/.DS_Store
+SRC/store/.DS_Store

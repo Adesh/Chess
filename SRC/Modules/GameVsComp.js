@@ -91,12 +91,10 @@ class GameVsComp extends Component {
               }
             }  
 
-            return setTimeout(() => {
-              this.gameOver();
-              this.setState({
+            this.gameOver();
+            this.setState({
                 _gameStatus: gameStatus
-              })
-            }, 800);
+            })
           }  
     }
     else{
