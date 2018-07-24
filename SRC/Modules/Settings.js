@@ -131,12 +131,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onChangeTheme : (key, val) => dispatch({
-      type: actionTypes.CHANGE_THEME,
-      key: key,
-      val: val
-    }),
-
     onSettingsChange : (key, val) => dispatch({
       type: actionTypes.CHANGE_SETTINGS,
       key: key,

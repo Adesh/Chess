@@ -99,7 +99,6 @@ class Welcome extends Component {
 const mapStateToProps = state => {
   return {
     theme: state.theme,
-    settings: state.settings
   };
 };
 

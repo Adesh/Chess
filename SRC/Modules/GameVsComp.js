@@ -15,20 +15,17 @@ import {
   Alert
 } from 'react-native';
 var Sound         = require('react-native-sound');
-import {Button as Button2} from 'react-native';
 
 import { StackActions, NavigationActions } from 'react-navigation';
 import { connect } from 'react-redux';
-import * as actionTypes from '../../store/actions';
+import * as actionTypes from '../store/actions';
 import Icon          from 'react-native-vector-icons/Ionicons';
 let Chess = require('chess.js/chess').Chess;
-import GLOBAL_VAR    from '../../Globals';
-import Toast         from '../../Helper/GetToast';
-import Button        from '../../Helper/GetButton';
-import Modal2        from '../../Helper/GetModal';
-import API           from '../../Helper/API';
-
-
+import GLOBAL_VAR    from '../Globals';
+import Toast         from '../Helper/GetToast';
+import Button        from '../Helper/GetButton';
+import Modal2        from '../Helper/GetModal';
+import API           from '../Helper/API';
 
 const {height, width} = Dimensions.get('window');
 
@@ -63,7 +60,7 @@ class GameVsComp extends Component {
       _gameStatus:'',
       //_gameLeaveModal:false,
       _gameHistoryModal:false,
-      _gameHintModal: false,
+      //_gameHintModal: false,
 
 
       messages: []
@@ -292,35 +289,6 @@ class GameVsComp extends Component {
             </View>
           </Modal>
 
-          {Modal2(
-            this.state._gameHintModal,
-            'Hint',
-            /*<View style={{}}>*/
-              <HintModalComp 
-                chess={chessInstance} 
-                getPiece={(data)=>this.getPiece(data)}
-                closeModal={()=>this.setState({_gameHintModal:false})}
-                makeMove={(a,b)=>{
-                  chessInstance.move({ 
-                    from: a, 
-                    to: b 
-                    //add promotion support
-                  });
-
-                  this.notify();
-                      
-                  return this.setState({
-                    _selectedPiece: -1,
-                    _possMoves: [],
-                    _gameHintModal:false,
-                    _chess:chessInstance
-                  });
-                }}
-              />
-            ,
-            ()=>this.setState({_gameHintModal:false})
-          )}
-
           <View style={{width:width,flexDirection:'row',paddingTop:20,}}>
             
             {Button(
@@ -341,7 +309,7 @@ class GameVsComp extends Component {
                 size={30} 
                 color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
               />,
-              ()=>this.setState({_gameHintModal:true}),
+              this.hint,
               {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center',paddingRight:20}
             )}
             
@@ -434,6 +402,51 @@ class GameVsComp extends Component {
           </View>
 
         </View>  
+    );
+  }
+
+  hint = async () => {
+    const urlLink = `?d=${this.props.settings.difficulty}&fen=${encodeURIComponent(this.props.chess.fen())}`
+    let res = API(urlLink);
+    let res = res.split(' ');
+    let resFrom  = res[1].substr(0,2);
+    let resTo    = res[1].substr(2,2);
+
+    let promotion = '';
+    try{
+      promotion  = res[1].substr(4);
+    }catch(e){}
+        
+    let suggestion; 
+    if(promotion == '')        
+        suggestion = {from:resFrom,to:resTo};
+    else
+        suggestion = {from:resFrom,to:resTo,promotion:promotion};  
+
+    let makeMove = (from,to) => {
+      chessInstance.move({ 
+        from, to 
+        //add promotion support
+      });
+
+      this.notify();
+          
+      return this.setState({
+        _selectedPiece: -1,
+        _possMoves: [],
+        _gameHintModal:false,
+        _chess:chessInstance
+      });
+    };     
+    //return this.setState({ _hint: suggestion });
+    Alert.alert(
+      'Hint',
+      `${this.props.getPiece(suggestion.from)} ${suggestion.from} -> ${suggestion.to}`,
+      [
+        {text: 'No', onPress: () => {}, style: 'cancel'},
+        {text: 'Yes', onPress: this._reset },
+      ],
+      { cancelable: false }
     );
   }
 
@@ -940,92 +953,6 @@ class GameVsComp extends Component {
   
   }
 }
-
-class HintModalComp extends Component{ 
-  
-  constructor(props) {
-    super(props);
-    this.state = {
-      _hint: -1,
-    } 
-  }
-
-  componentWillMount = () => {
-    const urlLink = '?d='
-                    +this.props.settings.difficulty
-                    +'&fen='
-                    +encodeURIComponent(this.props.chess.fen());
-    
-    console.log("urlLink",urlLink);                    
-    
-    API(urlLink)
-      .then((response)=>{
-          console.log(response);
-          var res = response.split(' ');
-          var resFrom  = res[1].substr(0,2);
-          var resTo    = res[1].substr(2,2);
-
-          var promotion = '';
-          try{
-            promotion  = res[1].substr(4);
-          }catch(e){}
-        
-          var suggestion; 
-          if(promotion == '')        
-            suggestion = {from:resFrom,to:resTo};
-          else
-            suggestion = {from:resFrom,to:resTo,promotion:promotion};  
-
-          return this.setState({ _hint: suggestion });
-      })
-      .catch(error=>console.warn(error));
-  }
-
-  render = () => {
-    return (
-      <View style={{}}>
-              
-        <View 
-          style={{ 
-            flexDirection:'row',
-            alignItems:'center',
-            padding:10,
-            justifyContent:'center',
-            width:width-120,
-          }} 
-        >
-          {(this.state._hint==-1)?<ActivityIndicator
-            animating={true}
-            size="small"
-            color={'black'}  
-          />:null}
-
-          <View style={{marginRight:20}} >
-            {this.props.getPiece(this.state._hint.from)}
-          </View>
-
-          <Text style={{fontWeight:'bold'}} >
-            {(this.state._hint!=-1)?`${this.state._hint.from} -> ${this.state._hint.to}`:''}
-          </Text>
-        </View>
-
-        <View style={{flexDirection:'row',justifyContent:'flex-end',marginTop:20}}>
-          {Button(
-            <Text style={{fontWeight:'bold'}}>Cancel</Text>,
-            ()=>this.props.closeModal(),
-            {marginRight:20,padding:5}
-          )}
-          {(this.state._hint==-1)?null:Button(
-            <Text style={{fontWeight:'bold'}}>Move</Text>,
-            ()=>this.props.makeMove(this.state._hint.from,this.state._hint.to),
-            {marginRight:20,padding:5}
-          )}
-        </View>  
-      </View>
-    );
-  }
-
-}  
 
 
 const mapStateToProps = state => {

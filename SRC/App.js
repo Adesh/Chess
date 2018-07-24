@@ -5,7 +5,7 @@ import { createStore } from 'redux';
 
 import reducer from './store/reducer';
 import Welcome      from './Modules/Welcome';
-import GameVsComp   from './Modules/Game/GameVsComp';
+import GameVsComp   from './Modules/GameVsComp';
 import Settings   from './Modules/Settings';
 
 const store = createStore(reducer);
