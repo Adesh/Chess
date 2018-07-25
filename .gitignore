@@ -29,3 +29,6 @@ SRC/Helper/.DS_Store
 SRC/Module/.DS_Store
 SRC/Resources/.DS_Store
 SRC/store/.DS_Store
+
+
+.env

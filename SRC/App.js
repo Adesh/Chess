@@ -2,6 +2,7 @@ import React from 'react';
 import { createStackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
+import codePush from "react-native-code-push";
 
 import reducer from './store/reducer';
 import Welcome      from './Modules/Welcome';
@@ -32,4 +33,4 @@ class App extends React.Component {
   }
 }
 
-export default App
+export default codePush(App)

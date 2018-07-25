@@ -5,10 +5,8 @@ import {
   View,
   Dimensions,
   ActivityIndicator,
-  ScrollView,
   Image,
   AsyncStorage,
-  Modal,
   StatusBar,
   Vibration,
   Platform,
@@ -24,7 +22,6 @@ import { connect } from 'react-redux';
 
 import * as actionTypes from '../store/actions';
 import GLOBAL_VAR    from '../Globals';
-import Toast         from '../Helper/GetToast';
 import Button        from '../Helper/GetButton';
 import API           from '../Helper/API';
 
@@ -47,59 +44,57 @@ class GameVsComp extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      //_showPossMove: true,
-      _chess: new Chess(),
-      //game
-      _turn: 'w',
-      _whiteSide: true, //board orientation
-      _iAm:'w', //or 'b',
-      _selectedPiece:-1,
-      _possMoves:[],
-      _lastMove:{},
-      _gameStatus:'',
+      chess: new Chess(),
+      turn: 'w',
+      whiteSide: true, //board orientation
+      iAm:'w', //or 'b',
+      selectedPiece:-1,
+      possMoves:[],
+      lastMove:{},
+      gameStatus:'',
     } 
   }
 
   componentDidUpdate = () => {
-    let chessInstance = {...this.state._chess};
+    let chessInstance = {...this.state.chess};
 
-    if(chessInstance.game_over() == true || chessInstance.in_threefold_repetition() == true){
+    if(chessInstance.game_over() === true || chessInstance.in_threefold_repetition() === true){
           console.log('Game over');
           //avoid forever state updation
-          if(this.state._gameStatus == 'Checkmate' || this.state._gameStatus == 'Draw' || this.state._gameStatus == 'Stalemate' || this.state._gameStatus == 'Threefold repetition'){
+          if(this.state.gameStatus === 'Checkmate' || this.state.gameStatus === 'Draw' || this.state.gameStatus === 'Stalemate' || this.state.gameStatus === 'Threefold repetition'){
             return;
           }
           else{
             var gameStatus = '';
         
-            if(chessInstance.in_checkmate() == true){
+            if(chessInstance.in_checkmate() === true){
               gameStatus = 'Checkmate';
             }
-            if(chessInstance.in_draw() == true){
+            if(chessInstance.in_draw() === true){
               gameStatus = 'Draw';
             }
-            if(chessInstance.in_stalemate() == true){
+            if(chessInstance.in_stalemate() === true){
               gameStatus = 'Stalemate';
             }
-            if(chessInstance.in_threefold_repetition() == true){
+            if(chessInstance.in_threefold_repetition() === true){
               gameStatus = 'Threefold repetition';
             }
         
-            if(chessInstance.in_checkmate() == true || chessInstance.in_stalemate() == true){
-              if(chessInstance.turn() == this.state._turn){
+            if(chessInstance.in_checkmate() === true || chessInstance.in_stalemate() === true){
+              if(chessInstance.turn() === this.state.turn){
                     console.log('you win');
               }
             }  
 
             this.gameOver();
             this.setState({
-                _gameStatus: gameStatus
+                gameStatus: gameStatus
             })
           }  
     }
     else{
-      if(chessInstance.turn() != this.state._turn){
-          if(this.state._iAm != chessInstance.turn()){
+      if(chessInstance.turn() !== this.state.turn){
+          if(this.state.iAm != chessInstance.turn()){
             
             const urlLink = '?d='
                     +this.props.settings.difficulty
@@ -137,10 +132,10 @@ class GameVsComp extends Component {
                   this.notify();
                   
                   return this.setState({
-                    _selectedPiece: -1,
-                    _possMoves: [],
-                    _lastMove:{from: resFrom, to: resTo,},
-                    _chess:chessInstance
+                    selectedPiece: -1,
+                    possMoves: [],
+                    lastMove:{from: resFrom, to: resTo,},
+                    chess:chessInstance
                   });
               })
               .catch((error) => {
@@ -148,13 +143,13 @@ class GameVsComp extends Component {
               });
           }
 
-          return this.setState({_turn:chessInstance.turn()});
+          return this.setState({turn:chessInstance.turn()});
       }      
     }
   }
   
   render() {
-    let chessInstance = {...this.state._chess};
+    let chessInstance = {...this.state.chess};
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
           
@@ -193,7 +188,7 @@ class GameVsComp extends Component {
                 size={30} 
                 color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
               />,
-              ()=>this._backBtn(),
+              this.onBackPress,
               {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center',paddingRight:20}
             )}
             
@@ -211,7 +206,7 @@ class GameVsComp extends Component {
 
           <View style={styles.header} >
             
-            {(this.state._turn != this.state._iAm && chessInstance.game_over()==false)?<View 
+            {(this.state.turn != this.state.iAm && chessInstance.game_over()===false)?<View 
                   style={{
                     flexDirection:'row',
                     alignItems:'center',
@@ -223,25 +218,25 @@ class GameVsComp extends Component {
                 >  
                 
                 <ActivityIndicator
-                  animating={this.state._turn != this.state._iAm}
+                  animating={this.state.turn != this.state.iAm}
                   size="small"
                   color={'white'}  
                 />
               
                 <Text style={{marginLeft:5,color:'white'}} >
-                  Computer is thinking{chessInstance.in_check() == true?' - Check':''}
+                  Computer is thinking{chessInstance.in_check() === true?' - Check':''}
                 </Text>
 
             </View>:<View/>}
           </View> 
 
           <View style={styles.gameBoard}>
-            {this.getChessBoard(this.state._whiteSide)}
+            {this.getChessBoard(this.state.whiteSide)}
           </View>
           
           <View style={styles.footer}>
             
-            {(this.state._turn == this.state._iAm && chessInstance.game_over()==false)?<View 
+            {(this.state.turn === this.state.iAm && chessInstance.game_over()===false)?<View 
                   style={{
                     flexDirection:'row',
                     alignItems:'center',
@@ -253,7 +248,7 @@ class GameVsComp extends Component {
                 >  
               
                 <Text style={{color:'white'}} >
-                  Your turn{chessInstance.in_check() == true?' - Check':''}
+                  Your turn{chessInstance.in_check() === true?' - Check':''}
                 </Text>
 
             </View>:<View/>}
@@ -264,7 +259,7 @@ class GameVsComp extends Component {
   }
 
   gameOver = () => Alert.alert(
-    this.state._gameStatus,
+    this.state.gameStatus,
     'Play Again?',
     [
       {text: 'No', onPress: () => {}, style: 'cancel'},
@@ -274,7 +269,7 @@ class GameVsComp extends Component {
   );
 
   hint = async () => {
-    const urlLink = `?d=${this.props.settings.difficulty}&fen=${encodeURIComponent(this.state._chess.fen())}`
+    const urlLink = `?d=${this.props.settings.difficulty}&fen=${encodeURIComponent(this.state.chess.fen())}`
     let res = await API(urlLink);
     res = res.split(' ');
     let resFrom  = res[1].substr(0,2);
@@ -289,13 +284,13 @@ class GameVsComp extends Component {
   }
 
   makeMove = (from, to, promotion) => {
-    let chess = {...this.state._chess};
+    let chess = {...this.state.chess};
     chess.move({ from, to, promotion });
     this.notify();
     return this.setState({
-      _selectedPiece: -1,
-      _possMoves: [],
-      _chess:chess
+      selectedPiece: -1,
+      possMoves: [],
+      chess:chess
     });
   };     
 
@@ -310,7 +305,7 @@ class GameVsComp extends Component {
   );
 
   reset = () => {
-    let chessInstance = {...this.state._chess};
+    let chessInstance = {...this.state.chess};
     chessInstance.reset();
     
     setTimeout(()=>{
@@ -324,7 +319,7 @@ class GameVsComp extends Component {
     return this.setState({
       //_gameOverModal:false,
       //_gameLeaveModal:false,
-      _chess:chessInstance
+      chess:chessInstance
     });
   }
 
@@ -332,35 +327,29 @@ class GameVsComp extends Component {
     if(this.props.settings.vibration === true) 
       Vibration.vibrate();
     if(this.props.settings.sound === true)
-      this.FX.play(()=>this.FX.stop); 
+      this.FX.play(); 
   }
 
   navigate = (route)=>this.props.navigation.navigate(route)
 
-  _backBtn = ()=>{
-    try{
-        let chessInstance = {...this.state._chess};
-        if(chessInstance.turn() == this.state._iAm){
-          console.log('undo');
-          //return ,'short');
-          chessInstance.undo();
-          chessInstance.undo();
-          //console.log(chessInstance.ascii());
-          return this.setState({
-            _turn:chessInstance.turn(),
-            _selectedPiece: -1,//deselect if any
-            _possMoves: [],
-            _chess:chessInstance
-          });
-        }
+  onBackPress = ()=>{
+    let chessInstance = {...this.state.chess};
+    if(chessInstance.turn() === this.state.iAm){
+      chessInstance.undo();
+      chessInstance.undo();
+      return this.setState({
+        turn:chessInstance.turn(),
+        selectedPiece: -1,//deselect if any
+        possMoves: [],
+        chess:chessInstance
+      });
     }
-    catch(e){}
   }
 
-  getChessBoard = (_whiteSide) => {
+  getChessBoard = (whiteSide) => {
     var foo = [];
 
-    if(_whiteSide == false){
+    if(whiteSide === false){
       for(var i=1; i<9; i++){
         for(var j=8; j>0; j--) {
           foo.push(this._renderCell(i,j));
@@ -379,7 +368,7 @@ class GameVsComp extends Component {
   }
   
   _renderCell = (_i,_j,_cell) => {
-    let chessInstance = {...this.state._chess};
+    let chessInstance = {...this.state.chess};
     const ii = _i;
     const jj = _j;
     const tempCell = this.getCell(ii,jj);
@@ -390,17 +379,17 @@ class GameVsComp extends Component {
         {Button(
           <View style={[styles.btnView,{backgroundColor:this.getCellColor(ii,jj,tempCell)}]}>
             {PIECE}
-            {/*(PIECE==null)?PIECE:<Animatable.View duration={850} animation='zoomIn'>{PIECE}</Animatable.View>*/}
+            
           </View>,
           ()=>{
-                  console.log("this.state._selectedPiece",this.state._selectedPiece);
-                  if(this.state._selectedPiece == -1){
+                  console.log("this.state.selectedPiece",this.state.selectedPiece);
+                  if(this.state.selectedPiece === -1){
                     
-                    if(chessInstance.get(tempCell) == null){
+                    if(chessInstance.get(tempCell) === null){
                       return;
                     }
 
-                    if(chessInstance.get(tempCell).color != this.state._iAm){
+                    if(chessInstance.get(tempCell).color != this.state.iAm){
                       return;
                     }
 
@@ -410,62 +399,62 @@ class GameVsComp extends Component {
                     //console.log(this._cleanCellName(chessInstance.moves({square: tempCell})));
 
                     return this.setState({
-                      _selectedPiece: tempCell,
-                      _possMoves: this._cleanCellName(chessInstance.moves({square: tempCell}))
+                      selectedPiece: tempCell,
+                      possMoves: this._cleanCellName(chessInstance.moves({square: tempCell}))
                     });
                   }
                   else{//something already selected
                     //deselect it
-                    if(this.state._selectedPiece == tempCell){
+                    if(this.state.selectedPiece === tempCell){
                       return this.setState({
-                        _selectedPiece: -1,
-                        _possMoves: []
+                        selectedPiece: -1,
+                        possMoves: []
                       });
                     }
                     //or deselect and select new
                     if(chessInstance.get(tempCell) != null){
-                      if(chessInstance.get(tempCell).color == this.state._iAm){
+                      if(chessInstance.get(tempCell).color === this.state.iAm){
                         
                         console.log(chessInstance.moves({square: tempCell}));
                         console.log(this._cleanCellName(chessInstance.moves({square: tempCell})));
                         
                         return this.setState({
-                          _selectedPiece: tempCell,
-                          _possMoves: this._cleanCellName(chessInstance.moves({square: tempCell}))
+                          selectedPiece: tempCell,
+                          possMoves: this._cleanCellName(chessInstance.moves({square: tempCell}))
                         });
                       }
                     }  
                     //move and deselect
-                    if(this.state._possMoves.indexOf(tempCell) != -1){
+                    if(this.state.possMoves.indexOf(tempCell) != -1){
                       console.log("Moving");
 
                       console.log("tempCell",tempCell);
                       console.log("row",ii);
                       console.log("col",jj);
-                      var tSelectedPiece = chessInstance.get(this.state._selectedPiece);
-                      console.log("_selectedPiece",tSelectedPiece);
-                      console.log("iAM",this.state._iAm);
+                      var tSelectedPiece = chessInstance.get(this.state.selectedPiece);
+                      console.log("selectedPiece",tSelectedPiece);
+                      console.log("iAM",this.state.iAm);
 
                       var promotion = undefined;
-                      if(tSelectedPiece.type == 'p'){
-                          if(tSelectedPiece.color == 'w' && ii==8){
+                      if(tSelectedPiece.type === 'p'){
+                          if(tSelectedPiece.color === 'w' && ii===8){
                             promotion = 'q';
                           }
-                          else if(tSelectedPiece.color == 'b' && ii==1){
+                          else if(tSelectedPiece.color === 'b' && ii===1){
                             promotion = 'q';
                           }
                       }
                       
-                      if(promotion == undefined){
+                      if(promotion === undefined){
                           chessInstance.move({ 
-                            from: this.state._selectedPiece, 
+                            from: this.state.selectedPiece, 
                             to: tempCell
                           });
                       }
                       else{
                           console.log('promoting');
                           chessInstance.move({ 
-                            from: this.state._selectedPiece, 
+                            from: this.state.selectedPiece, 
                             to: tempCell,
                             promotion:promotion
                           });
@@ -475,16 +464,16 @@ class GameVsComp extends Component {
                       this.notify();
                       
                       return this.setState({
-                        _selectedPiece: -1,
-                        _possMoves: [],
-                        _chess:chessInstance
+                        selectedPiece: -1,
+                        possMoves: [],
+                        chess:chessInstance
                       });
                     }
                     else{
                       //illeagal move
                       return this.setState({
-                        _selectedPiece: -1,
-                        _possMoves: []
+                        selectedPiece: -1,
+                        possMoves: []
                       });
                     }
                   }
@@ -496,27 +485,27 @@ class GameVsComp extends Component {
   }
   
   getCell = (_i,_j) => {
-    let foo = GLOBAL_VAR.COLUMN_MAP.NUM2COL[_j].toString();
-    let bar = _i.toString();
-    return foo+bar;
+    return {
+      1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h'
+    }[_j]+_i.toString();
   }
 
   getCellColor = (_i,_j,_cell) => {    
-    var pColor;
+    let pColor;
 
-    if((_i%2==0 && _j%2==0) || (_i%2!=0 && _j%2!=0)){
+    if((_i%2===0 && _j%2===0) || (_i%2!==0 && _j%2!==0)){
       pColor = GLOBAL_VAR.COLOR.CELL_DARK;
     }
-    else if((_i%2==0 && _j%2!=0) || (_i%2!=0 && _j%2==0)){
+    else if((_i%2===0 && _j%2!==0) || (_i%2!==0 && _j%2===0)){
       pColor = GLOBAL_VAR.COLOR.CELL_LIGHT;
     }
 
-    if(this.props.settings.showLastMove == true){
-      if(this.state._lastMove){
-        if(this.state._lastMove != {}){
-          if(this.state._lastMove.from && this.state._lastMove.to){
-              console.log("lastMove",this.state._lastMove);
-              if(this.state._possMoves.indexOf(_cell) != -1){
+    if(this.props.settings.showLastMove === true){
+      if(this.state.lastMove){
+        if(this.state.lastMove !== {}){
+          if(this.state.lastMove.from && this.state.lastMove.to){
+              console.log("lastMove",this.state.lastMove);
+              if(this.state.possMoves.indexOf(_cell) !== -1){
                 pColor = '#FF9419';
               }
           }
@@ -524,10 +513,10 @@ class GameVsComp extends Component {
       }
     }
 
-    //if(GLOBAL_VAR.APP_SETTING.SHOW_POSS_MOVE == true){
-    if(this.props.settings.showPossMove == true){
-      if(this.state._selectedPiece != -1){
-        if(this.state._possMoves.indexOf(_cell) != -1){
+    //if(GLOBAL_VAR.APP_SETTING.SHOW_POSS_MOVE === true){
+    if(this.props.settings.showPossMove === true){
+      if(this.state.selectedPiece !== -1){
+        if(this.state.possMoves.indexOf(_cell) !== -1){
           pColor = '#FF9419';
         }
       }
@@ -537,83 +526,83 @@ class GameVsComp extends Component {
   }
   
   getPiece = (_cell) => {
-    let chessInstance = {...this.state._chess};
+    let chessInstance = {...this.state.chess};
     let piece = chessInstance.get(_cell);
-    if(piece==null || piece==undefined){
+    if(piece===null || piece===undefined){
       return null;
     }
 
     const _pieceName  = piece.type;
     const _pieceColor = piece.color;
 
-    if(_pieceName=='k' && _pieceColor=='w'){
+    if(_pieceName==='k' && _pieceColor==='w'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/kW.png')}
       />;
     }
-    else if(_pieceName=='q' && _pieceColor=='w'){
+    else if(_pieceName==='q' && _pieceColor==='w'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/qW.png')}
       />;
     }
-    else if(_pieceName=='r' && _pieceColor=='w'){
+    else if(_pieceName==='r' && _pieceColor==='w'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/rW.png')}
       />;
     }
-    else if(_pieceName=='b' && _pieceColor=='w'){
+    else if(_pieceName==='b' && _pieceColor==='w'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/bW.png')}
       />;
     }
-    else if(_pieceName=='n' && _pieceColor=='w'){
+    else if(_pieceName==='n' && _pieceColor==='w'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/nW.png')}
       />;
     }
-    else if(_pieceName=='p' && _pieceColor=='w'){
+    else if(_pieceName==='p' && _pieceColor==='w'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/pW.png')}
       />;
     }
 
-    if(_pieceName=='k' && _pieceColor=='b'){
+    if(_pieceName==='k' && _pieceColor==='b'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/kB.png')}
       />;
     }
-    else if(_pieceName=='q' && _pieceColor=='b'){
+    else if(_pieceName==='q' && _pieceColor==='b'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/qB.png')}
       />;
     }
-    else if(_pieceName=='r' && _pieceColor=='b'){
+    else if(_pieceName==='r' && _pieceColor==='b'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/rB.png')}
       />;
     }
-    else if(_pieceName=='b' && _pieceColor=='b'){
+    else if(_pieceName==='b' && _pieceColor==='b'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/bB.png')}
       />;
     }
-    else if(_pieceName=='n' && _pieceColor=='b'){
+    else if(_pieceName==='n' && _pieceColor==='b'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/nB.png')}
       />;
     }
-    else if(_pieceName=='p' && _pieceColor=='b'){
+    else if(_pieceName==='p' && _pieceColor==='b'){
       return <Image
           style={styles.piece}
           source={require('../Resources/Themes/Classic/pB.png')}
@@ -627,13 +616,13 @@ class GameVsComp extends Component {
     var moves = _moves;
     //console.log(moves);
     for (var i=0; i<moves.length; i++){
-      if(moves[i] == 'O-O'){
-        if(this.state._iAm=='w'){
+      if(moves[i] === 'O-O'){
+        if(this.state.iAm==='w'){
           moves[i] = 'g1'; //e1 -> g1 
         }
       }
-      else if(moves[i] == 'O-O-O'){
-        if(this.state._iAm=='w'){
+      else if(moves[i] === 'O-O-O'){
+        if(this.state.iAm==='w'){
           moves[i] = 'c1'; //e1 -> c1
         }
       }
@@ -645,11 +634,11 @@ class GameVsComp extends Component {
         moves[i] = moves[i].replace("N", "");
 
         //promotion
-        if(moves[i].indexOf('=') == 2){
+        if(moves[i].indexOf('=') === 2){
           moves[i] = moves[i].substr(0,2);
         }
 
-        if(moves[i] != null || moves[i] != undefined){
+        if(moves[i] !== null || moves[i] !== undefined){
           // "dxe6"] "Qd7+", "Qxd8+"]
           moves[i] = moves[i].substr(-2);
         }
@@ -669,74 +658,74 @@ class GameVsComp extends Component {
   }
 
   getPieceIcon = (_pieceName,_pieceColor) => {
-      if(_pieceName=='k' && _pieceColor=='w'){
+      if(_pieceName==='k' && _pieceColor==='w'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/kW.png')}
         />;
       }
-      else if(_pieceName=='q' && _pieceColor=='w'){
+      else if(_pieceName==='q' && _pieceColor==='w'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/qW.png')}
         />;
       }
-      else if(_pieceName=='r' && _pieceColor=='w'){
+      else if(_pieceName==='r' && _pieceColor==='w'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/rW.png')}
         />;
       }
-      else if(_pieceName=='b' && _pieceColor=='w'){
+      else if(_pieceName==='b' && _pieceColor==='w'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/bW.png')}
         />;
       }
-      else if(_pieceName=='n' && _pieceColor=='w'){
+      else if(_pieceName==='n' && _pieceColor==='w'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/nW.png')}
         />;
       }
-      else if(_pieceName=='p' && _pieceColor=='w'){
+      else if(_pieceName==='p' && _pieceColor==='w'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/pW.png')}
         />;
       }
 
-      if(_pieceName=='k' && _pieceColor=='b'){
+      if(_pieceName==='k' && _pieceColor==='b'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/kB.png')}
         />;
       }
-      else if(_pieceName=='q' && _pieceColor=='b'){
+      else if(_pieceName==='q' && _pieceColor==='b'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/qB.png')}
         />;
       }
-      else if(_pieceName=='r' && _pieceColor=='b'){
+      else if(_pieceName==='r' && _pieceColor==='b'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/rB.png')}
         />;
       }
-      else if(_pieceName=='b' && _pieceColor=='b'){
+      else if(_pieceName==='b' && _pieceColor==='b'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/bB.png')}
         />;
       }
-      else if(_pieceName=='n' && _pieceColor=='b'){
+      else if(_pieceName==='n' && _pieceColor==='b'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/nB.png')}
         />;
       }
-      else if(_pieceName=='p' && _pieceColor=='b'){
+      else if(_pieceName==='p' && _pieceColor==='b'){
         return <Image
             style={styles.piece}
             source={require('../Resources/Themes/Classic/pB.png')}
