@@ -31,16 +31,7 @@ import API           from '../Helper/API';
 const {height, width} = Dimensions.get('window');
 
 class TopMenu extends Component { 
-  
-  FX = new Sound(
-    (Platform.OS !== 'ios')?
-      'movesound.wav':
-      '../Resources/moveSound.wav', 
-    Sound.MAIN_BUNDLE, 
-    error => error?
-              console.log('Sound not loaded'):
-              null
-  );
+
 
   constructor(props) {
     super(props);
@@ -56,110 +47,12 @@ class TopMenu extends Component {
     } 
   }
 
-  componentDidUpdate = () => {
-    let chessInstance = {...this.state.chess};
 
-    if(chessInstance.game_over() === true || chessInstance.in_threefold_repetition() === true){
-          console.log('Game over');
-          //avoid forever state updation
-          if(this.state.gameStatus === 'Checkmate' || this.state.gameStatus === 'Draw' || this.state.gameStatus === 'Stalemate' || this.state.gameStatus === 'Threefold repetition'){
-            return;
-          }
-          else{
-            var gameStatus = '';
-        
-            if(chessInstance.in_checkmate() === true){
-              gameStatus = 'Checkmate';
-            }
-            if(chessInstance.in_draw() === true){
-              gameStatus = 'Draw';
-            }
-            if(chessInstance.in_stalemate() === true){
-              gameStatus = 'Stalemate';
-            }
-            if(chessInstance.in_threefold_repetition() === true){
-              gameStatus = 'Threefold repetition';
-            }
-        
-            if(chessInstance.in_checkmate() === true || chessInstance.in_stalemate() === true){
-              if(chessInstance.turn() === this.state.turn){
-                    console.log('you win');
-              }
-            }  
 
-            this.gameOver();
-            this.setState({
-                gameStatus: gameStatus
-            })
-          }  
-    }
-    else{
-      if(chessInstance.turn() !== this.state.turn){
-          if(this.state.iAm != chessInstance.turn()){
-            
-            const urlLink = '?d='
-                    +this.props.settings.difficulty
-                    +'&fen='
-                    +encodeURIComponent(chessInstance.fen());
-            
-            API(urlLink)
-              .then((response)=>{
-            
-                  var res = response.split(' ');
-                  var resFrom  = res[1].substr(0,2);
-                  var resTo    = res[1].substr(2,2);
-                  
-                  var promotion = '';
-                  try{
-                    promotion  = res[1].substr(4);
-                  }catch(e){}
-                  
-                  console.log('promotion: '+promotion);
 
-                  if(promotion != ''){
-                    chessInstance.move({ 
-                      from: resFrom, 
-                      to: resTo,
-                      promotion: promotion
-                    });
-                  }
-                  else{
-                    chessInstance.move({ 
-                      from: resFrom, 
-                      to: resTo 
-                    });
-                  }
-                
-                  this.notify();
-                  
-                  return this.setState({
-                    selectedPiece: -1,
-                    possMoves: [],
-                    lastMove:{from: resFrom, to: resTo,},
-                    chess:chessInstance
-                  });
-              })
-              .catch((error) => {
-                  console.warn(error);
-              });
-          }
-
-          return this.setState({turn:chessInstance.turn()});
-      }      
-    }
-  }
   
   render() {
-    let chessInstance = {...this.state.chess};
-    return (
-        <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
-          
-          <StatusBar
-            backgroundColor="transparent"
-            barStyle="dark-content" 
-       />
-
-          <View style={{width:width,flexDirection:'row',paddingTop:20,}}>
+         <View style={{width:width,flexDirection:'row',paddingTop:20,}}>
             
             {Button(
               <Icon 
@@ -205,57 +98,9 @@ class TopMenu extends Component {
             )}
           </View>
 
-          <View style={styles.header} >
             
-            {(this.state.turn != this.state.iAm && chessInstance.game_over()===false)?<View 
-                  style={{
-                    flexDirection:'row',
-                    alignItems:'center',
-                    justifyContent:'center',
-                    backgroundColor:'rgba(255,0,0,0.6)',
-                    padding:5,
-                    borderRadius:3
-                  }}
-                >  
-                
-                <ActivityIndicator
-                  animating={this.state.turn != this.state.iAm}
-                  size="small"
-                  color={'white'}  
-                />
-              
-                <Text style={{marginLeft:5,color:'white'}} >
-                  Computer is thinking{chessInstance.in_check() === true?' - Check':''}
-                </Text>
-
-            </View>:<View/>}
-          </View> 
-
-          <View style={styles.gameBoard}>
-            {this.getChessBoard(this.state.whiteSide)}
-          </View>
           
-          <View style={styles.footer}>
-            
-            {(this.state.turn === this.state.iAm && chessInstance.game_over()===false)?<View 
-                  style={{
-                    flexDirection:'row',
-                    alignItems:'center',
-                    justifyContent:'center',
-                    backgroundColor:'rgba(0,255,0,0.6)',
-                    padding:5,
-                    borderRadius:3
-                  }}
-                >  
-              
-                <Text style={{color:'white'}} >
-                  Your turn{chessInstance.in_check() === true?' - Check':''}
-                </Text>
 
-            </View>:<View/>}
-          </View>
-
-        </View>  
     );
   }
 
