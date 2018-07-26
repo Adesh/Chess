@@ -30,7 +30,7 @@ import API           from '../Helper/API';
 
 const {height, width} = Dimensions.get('window');
 
-class GameVsComp extends Component { 
+class TopMenu extends Component { 
   
   FX = new Sound(
     (Platform.OS !== 'ios')?
@@ -754,7 +754,7 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(GameVsComp);
+export default connect(mapStateToProps, mapDispatchToProps)(TopMenu);
 
 
 const styles = StyleSheet.create({
