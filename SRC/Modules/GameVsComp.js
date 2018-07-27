@@ -22,7 +22,7 @@ import * as actionTypes from '../store/actions';
 import GLOBAL_VAR    from '../Globals';
 import Button        from '../Helper/GetButton';
 import API           from '../Helper/API';
-
+import PlayerInfo from './Game/PlayerInfo';
 import getPiece from './Game/getPiece';
 
 /* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
@@ -55,7 +55,7 @@ class GameVsComp extends Component {
     } 
   }
 
-  componentDidUpdate = () => {
+  componentDidUpdate = async () => {
     let chessInstance = {...this.state.chess};
 
     if(chessInstance.game_over() === true || chessInstance.in_threefold_repetition() === true){
@@ -101,46 +101,17 @@ class GameVsComp extends Component {
                     +'&fen='
                     +encodeURIComponent(chessInstance.fen());
             
-            API(urlLink)
-              .then((response)=>{
-            
-                  var res = response.split(' ');
-                  var resFrom  = res[1].substr(0,2);
-                  var resTo    = res[1].substr(2,2);
+            let response = await API(urlLink)
+            var res = response.split(' ');
+            var resFrom  = res[1].substr(0,2);
+            var resTo    = res[1].substr(2,2);
                   
-                  var promotion = '';
-                  try{
+            var promotion = '';
+            try{
                     promotion  = res[1].substr(4);
-                  }catch(e){}
-                  
-                  console.log('promotion: '+promotion);
+            }catch(e){}
 
-                  if(promotion != ''){
-                    chessInstance.move({ 
-                      from: resFrom, 
-                      to: resTo,
-                      promotion: promotion
-                    });
-                  }
-                  else{
-                    chessInstance.move({ 
-                      from: resFrom, 
-                      to: resTo 
-                    });
-                  }
-                
-                  this.notify();
-                  
-                  return this.setState({
-                    selectedPiece: -1,
-                    possMoves: [],
-                    lastMove:{from: resFrom, to: resTo,},
-                    chess:chessInstance
-                  });
-              })
-              .catch((error) => {
-                  console.warn(error);
-              });
+            this.makeMove(resFrom, resTo, promotion) 
           }
 
           return this.setState({turn:chessInstance.turn()});

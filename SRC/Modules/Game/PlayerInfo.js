@@ -6,11 +6,6 @@ import {
   ActivityIndicator
 } from 'react-native';
 
-import { connect } from 'react-redux';
-
-import TopMenu from './Game/TopMenu';
-import * as actionTypes from '../store/actions';
-import GLOBAL_VAR    from '../Globals';
 
 const PlayerInfo = (props) => { 
     return (
