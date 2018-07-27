@@ -16,14 +16,16 @@ import {
 
 let Chess = require('chess.js/chess').Chess;
 var Sound         = require('react-native-sound');
-import Icon          from 'react-native-vector-icons/Ionicons';
 import { StackActions, NavigationActions } from 'react-navigation';
 import { connect } from 'react-redux';
 
+import TopMenu from './TopMenu';
 import * as actionTypes from '../store/actions';
 import GLOBAL_VAR    from '../Globals';
 import Button        from '../Helper/GetButton';
 import API           from '../Helper/API';
+
+import getPiece from './Game/getPiece';
 
 /* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
 
@@ -153,58 +155,19 @@ class GameVsComp extends Component {
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
           
-          <StatusBar
+        <StatusBar
             backgroundColor="transparent"
             barStyle="dark-content" 
-       />
+        />
 
-          <View style={{width:width,flexDirection:'row',paddingTop:20,}}>
-            
-            {Button(
-              <Icon 
-                name={'md-home'} 
-                size={30} 
-                color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
-              />,
-              this.leaveGame,
-              {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}
-            )}
-            
-            <View style={{flex:1}} />
-            
-            {Button(
-              <Icon 
-                name={'md-help'} 
-                size={30} 
-                color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
-              />,
-              this.hint,
-              {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center',paddingRight:20}
-            )}
-            
-            {Button(
-              <Icon 
-                name={'md-undo'} 
-                size={30} 
-                color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
-              />,
-              this.onBackPress,
-              {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center',paddingRight:20}
-            )}
-            
-            
-            {Button(
-              <Icon 
-                name={'md-settings'} 
-                size={30}
-                color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText} 
-              />,
-              ()=>this.navigate('Settings'),
-              {padding:5,backgroundColor:'transparent',alignItems:'center',justifyContent:'center'}
-            )}
-          </View>
+        <TopMenu  
+          leaveGame = {this.leaveGame}
+          hint = {this.hint}
+          onBackPress = {this.onBackPress}
+          navigate = {this.navigate}
+        />  
 
-          <View style={styles.header} >
+        <View style={styles.header} >
             
             {(this.state.turn != this.state.iAm && chessInstance.game_over()===false)?<View 
                   style={{
@@ -259,13 +222,13 @@ class GameVsComp extends Component {
   }
 
   gameOver = () => Alert.alert(
-    this.state.gameStatus,
-    'Play Again?',
-    [
-      {text: 'No', onPress: () => {}, style: 'cancel'},
-      {text: 'Yes', onPress: this.reset },
-    ],
-    { cancelable: false }
+      this.state.gameStatus,
+      'Play Again?',
+      [
+        {text: 'No', onPress: () => {}, style: 'cancel'},
+        {text: 'Yes', onPress: this.reset },
+      ],
+      { cancelable: false }
   );
 
   hint = async () => {
@@ -372,7 +335,8 @@ class GameVsComp extends Component {
     const ii = _i;
     const jj = _j;
     const tempCell = this.getCell(ii,jj);
-    const PIECE = this.getPiece(tempCell);
+    
+    const PIECE = getPiece(chessInstance.get(_cell));
 
     return (
       <View key={(ii*8) + (jj)} style={styles.btn}>
@@ -525,93 +489,6 @@ class GameVsComp extends Component {
     return pColor;
   }
   
-  getPiece = (_cell) => {
-    let chessInstance = {...this.state.chess};
-    let piece = chessInstance.get(_cell);
-    if(piece===null || piece===undefined){
-      return null;
-    }
-
-    const _pieceName  = piece.type;
-    const _pieceColor = piece.color;
-
-    if(_pieceName==='k' && _pieceColor==='w'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/kW.png')}
-      />;
-    }
-    else if(_pieceName==='q' && _pieceColor==='w'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/qW.png')}
-      />;
-    }
-    else if(_pieceName==='r' && _pieceColor==='w'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/rW.png')}
-      />;
-    }
-    else if(_pieceName==='b' && _pieceColor==='w'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/bW.png')}
-      />;
-    }
-    else if(_pieceName==='n' && _pieceColor==='w'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/nW.png')}
-      />;
-    }
-    else if(_pieceName==='p' && _pieceColor==='w'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/pW.png')}
-      />;
-    }
-
-    if(_pieceName==='k' && _pieceColor==='b'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/kB.png')}
-      />;
-    }
-    else if(_pieceName==='q' && _pieceColor==='b'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/qB.png')}
-      />;
-    }
-    else if(_pieceName==='r' && _pieceColor==='b'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/rB.png')}
-      />;
-    }
-    else if(_pieceName==='b' && _pieceColor==='b'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/bB.png')}
-      />;
-    }
-    else if(_pieceName==='n' && _pieceColor==='b'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/nB.png')}
-      />;
-    }
-    else if(_pieceName==='p' && _pieceColor==='b'){
-      return <Image
-          style={styles.piece}
-          source={require('../Resources/Themes/Classic/pB.png')}
-      />;
-    }
-
-    return null;
-  }
-
   _cleanCellName = (_moves) => {
     var moves = _moves;
     //console.log(moves);
@@ -655,88 +532,6 @@ class GameVsComp extends Component {
       catch (error) {
         console.log('AsyncStorage error: ' + error.message);
       }
-  }
-
-  getPieceIcon = (_pieceName,_pieceColor) => {
-      if(_pieceName==='k' && _pieceColor==='w'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/kW.png')}
-        />;
-      }
-      else if(_pieceName==='q' && _pieceColor==='w'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/qW.png')}
-        />;
-      }
-      else if(_pieceName==='r' && _pieceColor==='w'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/rW.png')}
-        />;
-      }
-      else if(_pieceName==='b' && _pieceColor==='w'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/bW.png')}
-        />;
-      }
-      else if(_pieceName==='n' && _pieceColor==='w'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/nW.png')}
-        />;
-      }
-      else if(_pieceName==='p' && _pieceColor==='w'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/pW.png')}
-        />;
-      }
-
-      if(_pieceName==='k' && _pieceColor==='b'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/kB.png')}
-        />;
-      }
-      else if(_pieceName==='q' && _pieceColor==='b'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/qB.png')}
-        />;
-      }
-      else if(_pieceName==='r' && _pieceColor==='b'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/rB.png')}
-        />;
-      }
-      else if(_pieceName==='b' && _pieceColor==='b'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/bB.png')}
-        />;
-      }
-      else if(_pieceName==='n' && _pieceColor==='b'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/nB.png')}
-        />;
-      }
-      else if(_pieceName==='p' && _pieceColor==='b'){
-        return <Image
-            style={styles.piece}
-            source={require('../Resources/Themes/Classic/pB.png')}
-        />;
-      }
-
-      return null;
-  
-
-
-  
   }
 }
 
