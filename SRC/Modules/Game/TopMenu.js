@@ -6,8 +6,8 @@ import {
 } from 'react-native';
 
 import Icon          from 'react-native-vector-icons/Ionicons';
-import GLOBAL_VAR    from '../Globals';
-import Button        from '../Helper/GetButton';
+import GLOBAL_VAR    from '../../Globals';
+import Button        from '../../Helper/GetButton';
 
 const { width } = Dimensions.get('window');
 

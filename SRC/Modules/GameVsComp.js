@@ -4,8 +4,6 @@ import {
   Text,
   View,
   Dimensions,
-  ActivityIndicator,
-  Image,
   AsyncStorage,
   StatusBar,
   Vibration,
@@ -19,7 +17,7 @@ var Sound         = require('react-native-sound');
 import { StackActions, NavigationActions } from 'react-navigation';
 import { connect } from 'react-redux';
 
-import TopMenu from './TopMenu';
+import TopMenu from './Game/TopMenu';
 import * as actionTypes from '../store/actions';
 import GLOBAL_VAR    from '../Globals';
 import Button        from '../Helper/GetButton';
@@ -155,68 +153,26 @@ class GameVsComp extends Component {
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
           
-        <StatusBar
+          <StatusBar
             backgroundColor="transparent"
             barStyle="dark-content" 
-        />
+          />
 
-        <TopMenu  
-          leaveGame = {this.leaveGame}
-          hint = {this.hint}
-          onBackPress = {this.onBackPress}
-          navigate = {this.navigate}
-        />  
+          <TopMenu  
+            leaveGame = {this.leaveGame}
+            hint = {this.hint}
+            onBackPress = {this.onBackPress}
+            navigate = {this.navigate}
+          />  
 
-        <View style={styles.header} >
-            
-            {(this.state.turn != this.state.iAm && chessInstance.game_over()===false)?<View 
-                  style={{
-                    flexDirection:'row',
-                    alignItems:'center',
-                    justifyContent:'center',
-                    backgroundColor:'rgba(255,0,0,0.6)',
-                    padding:5,
-                    borderRadius:3
-                  }}
-                >  
-                
-                <ActivityIndicator
-                  animating={this.state.turn != this.state.iAm}
-                  size="small"
-                  color={'white'}  
-                />
-              
-                <Text style={{marginLeft:5,color:'white'}} >
-                  Computer is thinking{chessInstance.in_check() === true?' - Check':''}
-                </Text>
-
-            </View>:<View/>}
-          </View> 
-
-          <View style={styles.gameBoard}>
-            {this.getChessBoard(this.state.whiteSide)}
-          </View>
+          <PlayerInfo game={{turn:this.state.turn, iAm:this.state.iAm, chessInstance:chessInstance}} />
           
-          <View style={styles.footer}>
-            
-            {(this.state.turn === this.state.iAm && chessInstance.game_over()===false)?<View 
-                  style={{
-                    flexDirection:'row',
-                    alignItems:'center',
-                    justifyContent:'center',
-                    backgroundColor:'rgba(0,255,0,0.6)',
-                    padding:5,
-                    borderRadius:3
-                  }}
-                >  
-              
-                <Text style={{color:'white'}} >
-                  Your turn{chessInstance.in_check() === true?' - Check':''}
-                </Text>
-
-            </View>:<View/>}
+          <View style={styles.gameBoard}>
+              {this.getChessBoard(this.state.whiteSide)}
           </View>
-
+            
+          <PlayerInfo game={{turn:this.state.turn, iAm:this.state.iAm, chessInstance:chessInstance}} />
+          
         </View>  
     );
   }
@@ -334,10 +290,15 @@ class GameVsComp extends Component {
     let chessInstance = {...this.state.chess};
     const ii = _i;
     const jj = _j;
-    const tempCell = this.getCell(ii,jj);
     
-    const PIECE = getPiece(chessInstance.get(_cell));
+    
+    const tempCell = this.getCell(ii,jj);
+    const PIECE = getPiece(chessInstance.get(tempCell));
 
+    //const tempCell = this.getCell(ii,jj);
+    //const PIECE = this.getPiece(tempCell);
+
+    console.log("_renderCell: ",_cell,PIECE);
     return (
       <View key={(ii*8) + (jj)} style={styles.btn}>
         {Button(
@@ -557,11 +518,6 @@ const styles = StyleSheet.create({
     alignItems:'center',
     justifyContent:'center',
   },
-  header:{
-    flex:1,
-    alignItems:'center',
-    justifyContent:'center',
-  },
   gameBoard:{
     width:width,
     height:width+2,
@@ -570,11 +526,6 @@ const styles = StyleSheet.create({
     borderTopWidth:1,
     borderBottomWidth:1,
     borderColor:GLOBAL_VAR.COLOR.DEVIDER
-  },
-  footer:{
-    flex:1,
-    alignItems:'center',
-    justifyContent:'center',
   },
   btn:{
     alignItems:'center',

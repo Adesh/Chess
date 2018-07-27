@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     Image,
     StyleSheet,
@@ -6,11 +7,13 @@ import {
 
 const { width} = Dimensions.get('window');
 
-export default getPiece = (piece) => { 
+const getPiece = (piece) => { 
     if(!piece) return null;
 
     const pieceImg = piece.type.toLowerCase() + 
                      piece.color.toUpperCase();
+
+    console.log("getPiece: ",piece, pieceImg)
 
     switch(pieceImg) {
       
@@ -94,6 +97,8 @@ export default getPiece = (piece) => {
     };
 
 };
+
+export default getPiece;
 
 const styles = StyleSheet.create({  
     piece:{
