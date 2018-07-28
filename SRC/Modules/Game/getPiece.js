@@ -5,50 +5,47 @@ import {
     Dimensions
 } from 'react-native';
 
-const { width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const getPiece = (piece) => { 
     if(!piece) return null;
 
-    const pieceImg = piece.type.toLowerCase() + 
-                     piece.color.toUpperCase();
-
-    console.log("getPiece: ",piece, pieceImg)
+    const pieceImg = (piece.type + piece.color).toLowerCase();
 
     switch(pieceImg) {
       
       //whites
-      case 'kW': 
+      case 'kw': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/kW.png')} 
         />;
 
-      case 'qW': 
+      case 'qw': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/qW.png')} 
         />;
 
-      case 'pW': 
+      case 'pw': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/pW.png')} 
         />;
       
-      case 'rW': 
+      case 'rw': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/rW.png')} 
         />; 
 
-      case 'bW': 
+      case 'bw': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/bW.png')} 
         />;
       
-      case 'nW': 
+      case 'nw': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/nW.png')} 
@@ -56,37 +53,37 @@ const getPiece = (piece) => {
 
 
       //blacks
-      case 'kB': 
+      case 'kb': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/kB.png')} 
         />;
 
-      case 'qB': 
+      case 'qb': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/qB.png')} 
         />;
 
-      case 'pB': 
+      case 'pb': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/pB.png')} 
         />;
       
-      case 'rB': 
+      case 'rb': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/rB.png')} 
         />; 
 
-      case 'bB': 
+      case 'bb': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/bB.png')} 
         />;
       
-      case 'nB': 
+      case 'nb': 
         return <Image 
             style={styles.piece} 
             source={require('../../Resources/Themes/Classic/nB.png')} 

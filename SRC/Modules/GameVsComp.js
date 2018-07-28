@@ -1,22 +1,18 @@
 import React, {Component} from 'react';
 import {
   StyleSheet,
-  Text,
   View,
   Dimensions,
-  AsyncStorage,
   StatusBar,
   Vibration,
   Platform,
   Alert
 } from 'react-native';
 
-
-let Chess = require('chess.js/chess').Chess;
-var Sound         = require('react-native-sound');
+import {Chess} from 'chess.js/chess';
+import Sound from 'react-native-sound';
 import { StackActions, NavigationActions } from 'react-navigation';
 import { connect } from 'react-redux';
-
 import TopMenu from './Game/TopMenu';
 import * as actionTypes from '../store/actions';
 import GLOBAL_VAR    from '../Globals';
@@ -26,7 +22,6 @@ import PlayerInfo from './Game/PlayerInfo';
 import getPiece from './Game/getPiece';
 
 /* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
-
 const {height, width} = Dimensions.get('window');
 
 class GameVsComp extends Component { 
@@ -55,72 +50,33 @@ class GameVsComp extends Component {
     } 
   }
 
+  shouldComponentUpdate() {
+    let { gameStatus } = this.state;
+    if( gameStatus === 'Checkmate' || 
+        gameStatus === 'Draw' || 
+        gameStatus === 'Stalemate' || 
+        gameStatus === 'Threefold repetition') {
+      return false;
+    } 
+    return true;
+  }
+
   componentDidUpdate = async () => {
     let chessInstance = {...this.state.chess};
-
-    if(chessInstance.game_over() === true || chessInstance.in_threefold_repetition() === true){
-          console.log('Game over');
-          //avoid forever state updation
-          if(this.state.gameStatus === 'Checkmate' || this.state.gameStatus === 'Draw' || this.state.gameStatus === 'Stalemate' || this.state.gameStatus === 'Threefold repetition'){
-            return;
-          }
-          else{
-            var gameStatus = '';
-        
-            if(chessInstance.in_checkmate() === true){
-              gameStatus = 'Checkmate';
-            }
-            if(chessInstance.in_draw() === true){
-              gameStatus = 'Draw';
-            }
-            if(chessInstance.in_stalemate() === true){
-              gameStatus = 'Stalemate';
-            }
-            if(chessInstance.in_threefold_repetition() === true){
-              gameStatus = 'Threefold repetition';
-            }
-        
-            if(chessInstance.in_checkmate() === true || chessInstance.in_stalemate() === true){
-              if(chessInstance.turn() === this.state.turn){
-                    console.log('you win');
-              }
-            }  
-
-            this.gameOver();
-            this.setState({
-                gameStatus: gameStatus
-            })
-          }  
+    let {turn, iAm} = this.state;
+    if( chessInstance.game_over() === true || 
+        chessInstance.in_threefold_repetition() === true) {
+          return this.gameOver();
     }
-    else{
-      if(chessInstance.turn() !== this.state.turn){
-          if(this.state.iAm != chessInstance.turn()){
-            
-            const urlLink = '?d='
-                    +this.props.settings.difficulty
-                    +'&fen='
-                    +encodeURIComponent(chessInstance.fen());
-            
-            let response = await API(urlLink)
-            var res = response.split(' ');
-            var resFrom  = res[1].substr(0,2);
-            var resTo    = res[1].substr(2,2);
-                  
-            var promotion = '';
-            try{
-                    promotion  = res[1].substr(4);
-            }catch(e){}
-
-            this.makeMove(resFrom, resTo, promotion) 
-          }
-
-          return this.setState({turn:chessInstance.turn()});
-      }      
-    }
+    
+    if( chessInstance.turn() !== turn && 
+        chessInstance.turn() !== iAm) {
+        return this.makeMove(await this.suggestion());   
+    }      
   }
   
   render() {
-    let chessInstance = {...this.state.chess};
+    let {turn,iAm,whiteSide} = this.state;
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
           
@@ -131,25 +87,57 @@ class GameVsComp extends Component {
 
           <TopMenu  
             leaveGame = {this.leaveGame}
-            hint = {this.hint}
+            hint = {async ()=>this.makeMove(await this.suggestion())}
             onBackPress = {this.onBackPress}
-            navigate = {this.navigate}
+            navigate = {this.props.navigation.navigate}
           />  
 
-          <PlayerInfo game={{turn:this.state.turn, iAm:this.state.iAm, chessInstance:chessInstance}} />
+          <PlayerInfo 
+            game={{
+              turn: turn, 
+              iAm: iAm, 
+              chessInstance:{...this.state.chess}
+            }}
+            opponentSide={true} 
+          />
           
           <View style={styles.gameBoard}>
-              {this.getChessBoard(this.state.whiteSide)}
+              {this.getChessBoard(whiteSide)}
           </View>
             
-          <PlayerInfo game={{turn:this.state.turn, iAm:this.state.iAm, chessInstance:chessInstance}} />
+          <PlayerInfo 
+            game={{
+              turn: turn, 
+              iAm: iAm, 
+              chessInstance:{...this.state.chess}
+            }}
+            opponentSide={false} 
+          />
           
         </View>  
     );
   }
 
+  getGameStatus = () => {
+    let {turn} = this.state;    
+    if(chessInstance.in_checkmate() === true || chessInstance.turn() === turn)
+      return 'Checkmate, You win!';
+
+    if(chessInstance.in_checkmate() === true || chessInstance.turn() !== turn)
+      return 'Checkmate, Computer wins!';  
+    
+    if(chessInstance.in_draw() === true)
+      return 'Draw';
+    
+    if(chessInstance.in_stalemate() === true)
+      return 'Stalemate';
+    
+    if(chessInstance.in_threefold_repetition() === true)
+      return 'Threefold repetition';
+  };
+
   gameOver = () => Alert.alert(
-      this.state.gameStatus,
+      this.getGameStatus(),
       'Play Again?',
       [
         {text: 'No', onPress: () => {}, style: 'cancel'},
@@ -158,29 +146,32 @@ class GameVsComp extends Component {
       { cancelable: false }
   );
 
-  hint = async () => {
+  suggestion = async () => {
     const urlLink = `?d=${this.props.settings.difficulty}&fen=${encodeURIComponent(this.state.chess.fen())}`
     let res = await API(urlLink);
     res = res.split(' ');
-    let resFrom  = res[1].substr(0,2);
-    let resTo    = res[1].substr(2,2);
+    let from  = res[1].substr(0,2);
+    let to    = res[1].substr(2,2);
 
     let promotion = '';
     try{
       promotion  = res[1].substr(4);
     }catch(e){}
-       
-    return this.makeMove(resFrom, resTo, promotion);
+    
+    return {from, to, promotion};
   }
 
-  makeMove = (from, to, promotion) => {
+  makeMove = (suggestion) => {
+    let {from, to, promotion} = suggestion;
+    console.log('suggestion: ', suggestion, from, to, promotion)
     let chess = {...this.state.chess};
     chess.move({ from, to, promotion });
     this.notify();
     return this.setState({
       selectedPiece: -1,
       possMoves: [],
-      chess:chess
+      chess: chess,
+      turn: chess.turn()
     });
   };     
 
@@ -195,22 +186,16 @@ class GameVsComp extends Component {
   );
 
   reset = () => {
-    let chessInstance = {...this.state.chess};
-    chessInstance.reset();
-    
-    setTimeout(()=>{
-      const resetAction = StackActions.reset({
-        index: 0,
-        actions: [NavigationActions.navigate({ routeName: 'Welcome' })],
-      });
-      this.props.navigation.dispatch(resetAction);      
-    },50);
-
-    return this.setState({
-      //_gameOverModal:false,
-      //_gameLeaveModal:false,
-      chess:chessInstance
+    this.setState({
+      chess:{...this.state.chess}.reset()
     });
+
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: 'Welcome' })],
+    });
+
+    this.props.navigation.dispatch(resetAction);
   }
 
   notify = () => {
@@ -219,8 +204,6 @@ class GameVsComp extends Component {
     if(this.props.settings.sound === true)
       this.FX.play(); 
   }
-
-  navigate = (route)=>this.props.navigation.navigate(route)
 
   onBackPress = ()=>{
     let chessInstance = {...this.state.chess};
@@ -242,14 +225,14 @@ class GameVsComp extends Component {
     if(whiteSide === false){
       for(var i=1; i<9; i++){
         for(var j=8; j>0; j--) {
-          foo.push(this._renderCell(i,j));
+          foo.push(this.renderCell(i,j));
         }
       }
     }
     else{
       for(var i=8; i>0; i--){
         for(var j=1; j<9; j++) {          
-          foo.push(this._renderCell(i,j));
+          foo.push(this.renderCell(i,j));
         }
       }
     }  
@@ -257,106 +240,82 @@ class GameVsComp extends Component {
     return foo;
   }
   
-  _renderCell = (_i,_j,_cell) => {
-    let chessInstance = {...this.state.chess};
-    const ii = _i;
-    const jj = _j;
-    
-    
-    const tempCell = this.getCell(ii,jj);
-    const PIECE = getPiece(chessInstance.get(tempCell));
+  renderCell = (i,j,_cell) => {  
+    const { selectedPiece, iAm, chess, possMoves } = this.state; 
+    let chessInstance = {...chess}; 
 
-    //const tempCell = this.getCell(ii,jj);
-    //const PIECE = this.getPiece(tempCell);
+    const tempCell = this.getCell(i,j);
 
-    console.log("_renderCell: ",_cell,PIECE);
     return (
-      <View key={(ii*8) + (jj)} style={styles.btn}>
+      <View key={(i*8) + (j)} style={styles.btn}>
         {Button(
-          <View style={[styles.btnView,{backgroundColor:this.getCellColor(ii,jj,tempCell)}]}>
-            {PIECE}
-            
+          <View style={[styles.btnView,{backgroundColor:this.getCellColor(i,j,tempCell)}]}>
+            {getPiece(chessInstance.get(tempCell))}          
           </View>,
           ()=>{
-                  console.log("this.state.selectedPiece",this.state.selectedPiece);
-                  if(this.state.selectedPiece === -1){
+              if(selectedPiece === -1){
+                  if( chessInstance.get(tempCell) === null ||
+                      chessInstance.get(tempCell).color !== iAm )
+                    return;
                     
-                    if(chessInstance.get(tempCell) === null){
-                      return;
-                    }
-
-                    if(chessInstance.get(tempCell).color != this.state.iAm){
-                      return;
-                    }
-
-                    //select new
-                    
-                    //console.log("poss moves",chessInstance.moves({square: tempCell}));
-                    //console.log(this._cleanCellName(chessInstance.moves({square: tempCell})));
-
-                    return this.setState({
+                  return this.setState({
                       selectedPiece: tempCell,
                       possMoves: this._cleanCellName(chessInstance.moves({square: tempCell}))
-                    });
-                  }
-                  else{//something already selected
+                  });
+              }
+              else{ //something already selected
+                    
                     //deselect it
-                    if(this.state.selectedPiece === tempCell){
+                    if(selectedPiece === tempCell){
                       return this.setState({
                         selectedPiece: -1,
                         possMoves: []
                       });
                     }
+                    
                     //or deselect and select new
-                    if(chessInstance.get(tempCell) != null){
-                      if(chessInstance.get(tempCell).color === this.state.iAm){
-                        
-                        console.log(chessInstance.moves({square: tempCell}));
-                        console.log(this._cleanCellName(chessInstance.moves({square: tempCell})));
-                        
+                    if(chessInstance.get(tempCell) !== null){
+                      if(chessInstance.get(tempCell).color === iAm){
+                        console.log(chessInstance.moves({square: tempCell}),this._cleanCellName(chessInstance.moves({square: tempCell})));
                         return this.setState({
                           selectedPiece: tempCell,
                           possMoves: this._cleanCellName(chessInstance.moves({square: tempCell}))
                         });
                       }
                     }  
+                    
                     //move and deselect
-                    if(this.state.possMoves.indexOf(tempCell) != -1){
-                      console.log("Moving");
+                    if(possMoves.indexOf(tempCell) != -1){
+                      console.log("Moving","tempCell",tempCell,"row",i,"col",j);
 
-                      console.log("tempCell",tempCell);
-                      console.log("row",ii);
-                      console.log("col",jj);
-                      var tSelectedPiece = chessInstance.get(this.state.selectedPiece);
-                      console.log("selectedPiece",tSelectedPiece);
-                      console.log("iAM",this.state.iAm);
+                      var tSelectedPiece = chessInstance.get(selectedPiece);
+                      console.log("selectedPiece",tSelectedPiece,"iAM",iAm);
 
                       var promotion = undefined;
                       if(tSelectedPiece.type === 'p'){
-                          if(tSelectedPiece.color === 'w' && ii===8){
+                          if(tSelectedPiece.color === 'w' && i===8){
                             promotion = 'q';
                           }
-                          else if(tSelectedPiece.color === 'b' && ii===1){
+                          else if(tSelectedPiece.color === 'b' && i===1){
                             promotion = 'q';
                           }
                       }
                       
                       if(promotion === undefined){
                           chessInstance.move({ 
-                            from: this.state.selectedPiece, 
+                            from: selectedPiece, 
                             to: tempCell
                           });
                       }
                       else{
                           console.log('promoting');
                           chessInstance.move({ 
-                            from: this.state.selectedPiece, 
+                            from: selectedPiece, 
                             to: tempCell,
                             promotion:promotion
                           });
                       }
                       
-
                       this.notify();
                       
                       return this.setState({
@@ -365,14 +324,13 @@ class GameVsComp extends Component {
                         chess:chessInstance
                       });
                     }
-                    else{
-                      //illeagal move
-                      return this.setState({
-                        selectedPiece: -1,
-                        possMoves: []
-                      });
-                    }
-                  }
+                    
+                    //illeagal move
+                    return this.setState({
+                      selectedPiece: -1,
+                      possMoves: []
+                    });
+              }
           },
           styles.btn
         )}
@@ -387,51 +345,47 @@ class GameVsComp extends Component {
   }
 
   getCellColor = (_i,_j,_cell) => {    
-    let pColor;
+    let clr;
+    let { lastMove, possMoves, selectedPiece} = this.state;
 
     if((_i%2===0 && _j%2===0) || (_i%2!==0 && _j%2!==0)){
-      pColor = GLOBAL_VAR.COLOR.CELL_DARK;
+      clr = GLOBAL_VAR.COLOR.CELL_DARK;
     }
-    else if((_i%2===0 && _j%2!==0) || (_i%2!==0 && _j%2===0)){
-      pColor = GLOBAL_VAR.COLOR.CELL_LIGHT;
+    
+    if((_i%2===0 && _j%2!==0) || (_i%2!==0 && _j%2===0)){
+      clr = GLOBAL_VAR.COLOR.CELL_LIGHT;
     }
 
-    if(this.props.settings.showLastMove === true){
-      if(this.state.lastMove){
-        if(this.state.lastMove !== {}){
-          if(this.state.lastMove.from && this.state.lastMove.to){
-              console.log("lastMove",this.state.lastMove);
-              if(this.state.possMoves.indexOf(_cell) !== -1){
-                pColor = '#FF9419';
-              }
-          }
+    if(this.props.settings.showLastMove === true && lastMove){
+      if(lastMove.from && lastMove.to){
+        if(possMoves.indexOf(_cell) !== -1){
+          clr = '#FF9419';
         }
       }
     }
 
-    //if(GLOBAL_VAR.APP_SETTING.SHOW_POSS_MOVE === true){
     if(this.props.settings.showPossMove === true){
-      if(this.state.selectedPiece !== -1){
-        if(this.state.possMoves.indexOf(_cell) !== -1){
-          pColor = '#FF9419';
+      if(selectedPiece !== -1){
+        if(possMoves.indexOf(_cell) !== -1){
+          clr = '#FF9419';
         }
       }
-    }  
+    }
 
-    return pColor;
+    return clr;
   }
   
-  _cleanCellName = (_moves) => {
-    var moves = _moves;
-    //console.log(moves);
-    for (var i=0; i<moves.length; i++){
+  _cleanCellName = (moves) => {
+    //let moves = [...moves];
+    let {iAm} = this.state;
+    for (let i in moves){
       if(moves[i] === 'O-O'){
-        if(this.state.iAm==='w'){
+        if(iAm === 'w'){
           moves[i] = 'g1'; //e1 -> g1 
         }
       }
       else if(moves[i] === 'O-O-O'){
-        if(this.state.iAm==='w'){
+        if(iAm === 'w'){
           moves[i] = 'c1'; //e1 -> c1
         }
       }
@@ -456,17 +410,8 @@ class GameVsComp extends Component {
 
     return moves;
   }
-  
-  getStorageVar = async (_str) => {
-      try {
-        return await AsyncStorage.getItem(_str); 
-      } 
-      catch (error) {
-        console.log('AsyncStorage error: ' + error.message);
-      }
-  }
-}
 
+}
 
 const mapStateToProps = state => {
   return {
@@ -481,7 +426,6 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GameVsComp);
-
 
 const styles = StyleSheet.create({
   maincontainer: {

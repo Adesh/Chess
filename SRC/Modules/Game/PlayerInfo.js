@@ -11,16 +11,15 @@ const PlayerInfo = (props) => {
     return (
         <View style={styles.container} >
             
-            {(props.game.turn != props.game.iAm)?<View 
-                  style={styles.subcontainer}
-                >  
+            {( props.game.turn !== props.game.iAm && 
+               props.opponentSide === true)?
+            <View style={styles.subcontainer} >  
                 
                 <ActivityIndicator
                   animating={props.game.turn != props.game.iAm}
                   size="small"
                   color={'white'}  
                 />
-              
                 <Text style={{marginLeft:5,color:'white'}} >
                   Computer is thinking {props.game.chessInstance.in_check() === true ? '- Check' : ''}
                 </Text>
@@ -28,13 +27,15 @@ const PlayerInfo = (props) => {
             </View>:null}
             
             
-            {(props.game.turn === props.game.iAm && props.game.chessInstance.game_over()===false)?<View >  
-              
-              <Text style={{color:'white'}} >
-                Your turn {props.game.chessInstance.in_check() === true ? '- Check' : ''}
-              </Text>
-
-          </View>:null}
+            {( props.game.turn === props.game.iAm && 
+               props.game.chessInstance.game_over()===false &&
+               props.opponentSide === true)?
+            <View >  
+                <Text style={{color:'white'}} >
+                    Your turn {props.game.chessInstance.in_check() === true ? '- Check' : ''}
+                </Text>
+            </View>:
+            null}
 
         </View>     
     );
