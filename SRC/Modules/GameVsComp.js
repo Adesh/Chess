@@ -385,8 +385,8 @@ class GameVsComp extends Component {
         }
       }
       else if(moves[i] === 'O-O-O'){
-        if(iAm === 'w'){
-          moves[i] = 'c1'; //e1 -> c1
+        if(iAm === 'w'){ 
+          moves[i] = 'c1';  //e1 -> c1
         }
       }
       else{
