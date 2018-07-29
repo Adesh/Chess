@@ -5,9 +5,9 @@ import { createStore } from 'redux';
 import codePush from "react-native-code-push";
 
 import reducer from './store/reducer';
-import Welcome      from './Modules/Welcome';
-import GameVsComp   from './Modules/GameVsComp';
-import Settings   from './Modules/Settings';
+import Welcome      from './Module/Welcome';
+import GameVsComp   from './Module/GameVsComp';
+import Settings   from './Module/Settings';
 
 const store = createStore(reducer);
 

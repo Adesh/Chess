@@ -5,9 +5,10 @@ import {
   Dimensions,
 } from 'react-native';
 
-import Icon          from 'react-native-vector-icons/Ionicons';
-import GLOBAL_VAR    from '../../Globals';
-import Button        from '../../Helper/GetButton';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import GLOBAL from '../../Globals';
+import Button from '../../Helper/Button';
 
 const { width } = Dimensions.get('window');
 
@@ -19,7 +20,7 @@ export default TopMenu  = (props) => {
           <Icon 
             name={'md-home'} 
             size={30} 
-            color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
+            color={GLOBAL.COLOR.THEME['swan'].secondaryText}
           />,
           props.leaveGame,
           styles.btn
@@ -31,7 +32,7 @@ export default TopMenu  = (props) => {
           <Icon 
             name={'md-help'} 
             size={30} 
-            color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
+            color={GLOBAL.COLOR.THEME['swan'].secondaryText}
           />,
           props.hint,
           [styles.btn, {paddingRight:20}]
@@ -41,7 +42,7 @@ export default TopMenu  = (props) => {
           <Icon 
             name={'md-undo'} 
             size={30} 
-            color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText}
+            color={GLOBAL.COLOR.THEME['swan'].secondaryText}
           />,
           props.onBackPress,
           [styles.btn, {paddingRight:20}]
@@ -52,7 +53,7 @@ export default TopMenu  = (props) => {
           <Icon 
             name={'md-settings'} 
             size={30}
-            color={GLOBAL_VAR.COLOR.THEME['swan'].secondaryText} 
+            color={GLOBAL.COLOR.THEME['swan'].secondaryText} 
           />,
           ()=>props.navigate('Settings'),
           styles.btn

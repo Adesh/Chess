@@ -10,10 +10,11 @@ import {
   Picker,
   StatusBar
 } from 'react-native';
+
 import { connect } from 'react-redux';
 
-import GLOBAL_VAR from '../Globals';
-import Button from '../Helper/GetButton';
+import GLOBAL from '../Globals';
+import Button from '../Helper/Button';
 import * as actionTypes from '../store/actions';
 
 const {width} = Dimensions.get('window');
@@ -23,7 +24,7 @@ class Settings extends Component {
   
   render() {
     return (
-      <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
+      <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
       	
         <StatusBar
             backgroundColor="transparent"
@@ -112,7 +113,7 @@ class Settings extends Component {
     const settings = [ 'difficulty', 'sound', 'vibration', 'showPossMove', 'showLastMove' ];
     
     for(let setting of settings) {
-      this.updateSetting(setting, GLOBAL_VAR.APP_SETTING.DEFAULT[setting]); 
+      this.updateSetting(setting, GLOBAL.APP_SETTING.DEFAULT[setting]); 
     }
   }
 

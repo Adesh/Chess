@@ -9,76 +9,61 @@ import {
   Alert
 } from 'react-native';
 
+import { 
+  StackActions, 
+  NavigationActions 
+} from 'react-navigation';
+
 import {Chess} from 'chess.js/chess';
 import Sound from 'react-native-sound';
-import { StackActions, NavigationActions } from 'react-navigation';
 import { connect } from 'react-redux';
-import TopMenu from './Game/TopMenu';
-import * as actionTypes from '../store/actions';
-import GLOBAL_VAR    from '../Globals';
-import Button        from '../Helper/GetButton';
-import API           from '../Helper/API';
-import PlayerInfo from './Game/PlayerInfo';
-import getPiece from './Game/getPiece';
+
+import PlayerInfo from './PlayerInfo';
+import getPiece from './getPiece';
+import TopMenu from './TopMenu';
+import GLOBAL from '../../Globals';
+import Button from '../../Helper/Button';
+import API from '../../Helper/API';
+import * as actionTypes from '../../store/actions';
 
 /* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
-const {height, width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 class GameVsComp extends Component { 
-  
-  FX = new Sound(
-    (Platform.OS !== 'ios')?
-      'movesound.wav':
-      '../Resources/moveSound.wav', 
-    Sound.MAIN_BUNDLE, 
-    error => error?
-              console.log('Sound not loaded'):
-              null
-  );
 
   constructor(props) {
     super(props);
     this.state = {
       chess: new Chess(),
-      turn: 'w',
       whiteSide: true, //board orientation
-      iAm:'w', //or 'b',
-      selectedPiece:-1,
-      possMoves:[],
-      lastMove:{},
-      gameStatus:'',
+      iAm: 'w', //or 'b',
+      selectedPiece: -1,
+      possMoves: [],
+      gameStatus: '',
     } 
-  }
-
-  shouldComponentUpdate() {
-    let { gameStatus } = this.state;
-    if( gameStatus === 'Checkmate' || 
-        gameStatus === 'Draw' || 
-        gameStatus === 'Stalemate' || 
-        gameStatus === 'Threefold repetition') {
-      return false;
-    } 
-    return true;
   }
 
   componentDidUpdate = async () => {
     let chessInstance = {...this.state.chess};
-    let {turn, iAm} = this.state;
-    if( chessInstance.game_over() === true || 
-        chessInstance.in_threefold_repetition() === true) {
+    let iAm = this.state.iAm;
+    
+    if( chessInstance.game_over() || 
+        chessInstance.in_threefold_repetition()) {
           return this.gameOver();
     }
     
-    if( chessInstance.turn() !== turn && 
-        chessInstance.turn() !== iAm) {
+    if( chessInstance.turn() !== iAm) {
         return this.makeMove(await this.suggestion());   
     }      
   }
   
   render() {
-    let {turn,iAm,whiteSide} = this.state;
+    let chessInstance = {...this.state.chess};
+    let iAm = this.state.iAm;
+    let whiteSide = this.state.whiteSide;
+
     return (
-        <View style={[styles.maincontainer,{backgroundColor: GLOBAL_VAR.COLOR.THEME['swan'].defaultPrimary}]}>
+        <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
           
           <StatusBar
             backgroundColor="transparent"
@@ -93,12 +78,10 @@ class GameVsComp extends Component {
           />  
 
           <PlayerInfo 
-            game={{
-              turn: turn, 
-              iAm: iAm, 
-              chessInstance:{...this.state.chess}
-            }}
-            opponentSide={true} 
+            turn = {chessInstance.turn()} 
+            iAm = {iAm} 
+            chessInstance = {{...this.state.chess}}
+            opponentSide = {true} 
           />
           
           <View style={styles.gameBoard}>
@@ -106,11 +89,9 @@ class GameVsComp extends Component {
           </View>
             
           <PlayerInfo 
-            game={{
-              turn: turn, 
-              iAm: iAm, 
-              chessInstance:{...this.state.chess}
-            }}
+            turn = {chessInstance.turn()} 
+            iAm = {iAm} 
+            chessInstance = {{...this.state.chess}}
             opponentSide={false} 
           />
           
@@ -119,11 +100,12 @@ class GameVsComp extends Component {
   }
 
   getGameStatus = () => {
-    let {turn} = this.state;    
-    if(chessInstance.in_checkmate() === true || chessInstance.turn() === turn)
+    let chessInstance = {...this.state.chess};
+    let iAm = this.state.iAm;    
+    if(chessInstance.in_checkmate() === true && chessInstance.turn() !== iAm)
       return 'Checkmate, You win!';
 
-    if(chessInstance.in_checkmate() === true || chessInstance.turn() !== turn)
+    if(chessInstance.in_checkmate() === true && chessInstance.turn() === iAm)
       return 'Checkmate, Computer wins!';  
     
     if(chessInstance.in_draw() === true)
@@ -141,7 +123,7 @@ class GameVsComp extends Component {
       'Play Again?',
       [
         {text: 'No', onPress: () => {}, style: 'cancel'},
-        {text: 'Yes', onPress: this.reset },
+        {text: 'Yes', onPress: this.resetToHome },
       ],
       { cancelable: false }
   );
@@ -162,16 +144,15 @@ class GameVsComp extends Component {
   }
 
   makeMove = (suggestion) => {
-    let {from, to, promotion} = suggestion;
-    console.log('suggestion: ', suggestion, from, to, promotion)
+    let { from, to, promotion } = suggestion;
     let chess = {...this.state.chess};
     chess.move({ from, to, promotion });
     this.notify();
+    
     return this.setState({
       selectedPiece: -1,
       possMoves: [],
       chess: chess,
-      turn: chess.turn()
     });
   };     
 
@@ -180,16 +161,13 @@ class GameVsComp extends Component {
     'Are you sure about leaving the game?',
     [
       {text: 'No', onPress: () => {}, style: 'cancel'},
-      {text: 'Yes', onPress: this.reset },
+      {text: 'Yes', onPress: this.resetToHome },
     ],
     { cancelable: false }
   );
 
-  reset = () => {
-    this.setState({
-      chess:{...this.state.chess}.reset()
-    });
-
+  resetToHome = () => {
+    // no need to reset the this.state.chess, comp will unmount 
     const resetAction = StackActions.reset({
       index: 0,
       actions: [NavigationActions.navigate({ routeName: 'Welcome' })],
@@ -197,6 +175,14 @@ class GameVsComp extends Component {
 
     this.props.navigation.dispatch(resetAction);
   }
+
+  FX = new Sound(
+    (Platform.OS !== 'ios') ?
+      'movesound.wav' :
+      '../../Resources/moveSound.wav', 
+    Sound.MAIN_BUNDLE,
+    error => console.log('Sound not loaded ',error) 
+  );
 
   notify = () => {
     if(this.props.settings.vibration === true) 
@@ -211,16 +197,15 @@ class GameVsComp extends Component {
       chessInstance.undo();
       chessInstance.undo();
       return this.setState({
-        turn:chessInstance.turn(),
         selectedPiece: -1,//deselect if any
         possMoves: [],
-        chess:chessInstance
+        chess: chessInstance
       });
     }
   }
 
   getChessBoard = (whiteSide) => {
-    var foo = [];
+    let foo = [];
 
     if(whiteSide === false){
       for(var i=1; i<9; i++){
@@ -241,18 +226,19 @@ class GameVsComp extends Component {
   }
   
   renderCell = (i,j,_cell) => {  
-    const { selectedPiece, iAm, chess, possMoves } = this.state; 
-    let chessInstance = {...chess}; 
-
     const tempCell = this.getCell(i,j);
-
+    let chessInstance = {...this.state.chess}; 
     return (
       <View key={(i*8) + (j)} style={styles.btn}>
         {Button(
           <View style={[styles.btnView,{backgroundColor:this.getCellColor(i,j,tempCell)}]}>
             {getPiece(chessInstance.get(tempCell))}          
           </View>,
-          ()=>{
+          () => {
+              const selectedPiece = this.state.selectedPiece;
+              const iAm = this.state.iAm;
+              const possMoves = this.state.possMoves; 
+        
               if(selectedPiece === -1){
                   if( chessInstance.get(tempCell) === null ||
                       chessInstance.get(tempCell).color !== iAm )
@@ -266,32 +252,27 @@ class GameVsComp extends Component {
               else{ //something already selected
                     
                     //deselect it
-                    if(selectedPiece === tempCell){
+                    if( selectedPiece === tempCell ||
+                        possMoves.indexOf(tempCell) === -1){
                       return this.setState({
                         selectedPiece: -1,
-                        possMoves: []
+                        possMoves: [],
+                        chess: chessInstance
                       });
                     }
                     
                     //or deselect and select new
-                    if(chessInstance.get(tempCell) !== null){
-                      if(chessInstance.get(tempCell).color === iAm){
-                        console.log(chessInstance.moves({square: tempCell}),this._cleanCellName(chessInstance.moves({square: tempCell})));
+                    if(chessInstance.get(tempCell) && chessInstance.get(tempCell).color === iAm){                        
                         return this.setState({
                           selectedPiece: tempCell,
                           possMoves: this._cleanCellName(chessInstance.moves({square: tempCell}))
                         });
-                      }
                     }  
                     
                     //move and deselect
                     if(possMoves.indexOf(tempCell) != -1){
-                      console.log("Moving","tempCell",tempCell,"row",i,"col",j);
-
                       var tSelectedPiece = chessInstance.get(selectedPiece);
-                      console.log("selectedPiece",tSelectedPiece,"iAM",iAm);
-
-                      var promotion = undefined;
+                      var promotion = '';
                       if(tSelectedPiece.type === 'p'){
                           if(tSelectedPiece.color === 'w' && i===8){
                             promotion = 'q';
@@ -301,35 +282,20 @@ class GameVsComp extends Component {
                           }
                       }
                       
-                      if(promotion === undefined){
-                          chessInstance.move({ 
-                            from: selectedPiece, 
-                            to: tempCell
-                          });
-                      }
-                      else{
-                          console.log('promoting');
-                          chessInstance.move({ 
-                            from: selectedPiece, 
-                            to: tempCell,
-                            promotion:promotion
-                          });
-                      }
+                      return this.makeMove({
+                        from: selectedPiece, 
+                        to: tempCell,
+                        promotion
+                      });  
                       
-                      this.notify();
-                      
-                      return this.setState({
-                        selectedPiece: -1,
-                        possMoves: [],
-                        chess:chessInstance
-                      });
                     }
                     
                     //illeagal move
-                    return this.setState({
+                    /*return this.setState({
                       selectedPiece: -1,
-                      possMoves: []
-                    });
+                      possMoves: [],
+                      chess: chessInstance
+                    });*/
               }
           },
           styles.btn
@@ -346,18 +312,21 @@ class GameVsComp extends Component {
 
   getCellColor = (_i,_j,_cell) => {    
     let clr;
-    let { lastMove, possMoves, selectedPiece} = this.state;
+    let chessInstance = {...this.state.chess};
+    let lastMove = chessInstance.history()[0];
+    let possMoves = this.state.possMoves;
+    let selectedPiece = this.state.selectedPiece;
 
     if((_i%2===0 && _j%2===0) || (_i%2!==0 && _j%2!==0)){
-      clr = GLOBAL_VAR.COLOR.CELL_DARK;
+      clr = GLOBAL.COLOR.CELL_DARK;
     }
     
     if((_i%2===0 && _j%2!==0) || (_i%2!==0 && _j%2===0)){
-      clr = GLOBAL_VAR.COLOR.CELL_LIGHT;
+      clr = GLOBAL.COLOR.CELL_LIGHT;
     }
 
     if(this.props.settings.showLastMove === true && lastMove){
-      if(lastMove.from && lastMove.to){
+      if(lastMove.from && lastMove.to && lastMove.color !== this.state.iAm){
         if(possMoves.indexOf(_cell) !== -1){
           clr = '#FF9419';
         }
@@ -377,33 +346,33 @@ class GameVsComp extends Component {
   
   _cleanCellName = (moves) => {
     //let moves = [...moves];
-    let {iAm} = this.state;
-    for (let i in moves){
-      if(moves[i] === 'O-O'){
+    let iAm = this.state.iAm;
+    for (let move of moves){
+      if(move === 'O-O'){
         if(iAm === 'w'){
-          moves[i] = 'g1'; //e1 -> g1 
+          move = 'g1'; //e1 -> g1 
         }
       }
-      else if(moves[i] === 'O-O-O'){
+      else if(move === 'O-O-O'){
         if(iAm === 'w'){ 
-          moves[i] = 'c1';  //e1 -> c1
+          move = 'c1';  //e1 -> c1
         }
       }
       else{
-        //console.log(moves[i].substr(-2));
-        moves[i] = moves[i].replace("+", "");
-        moves[i] = moves[i].replace("x", "");
-        moves[i] = moves[i].replace("Q", "");
-        moves[i] = moves[i].replace("N", "");
+        move = move
+              .replace("+", "")
+              .replace("x", "")
+              .replace("Q", "")
+              .replace("N", "");
 
         //promotion
-        if(moves[i].indexOf('=') === 2){
-          moves[i] = moves[i].substr(0,2);
+        if(move.indexOf('=') === 2){
+          move = move.substr(0,2);
         }
 
-        if(moves[i] !== null || moves[i] !== undefined){
+        if(move !== null || move !== undefined){
           // "dxe6"] "Qd7+", "Qxd8+"]
-          moves[i] = moves[i].substr(-2);
+          move = move.substr(-2);
         }
       }  
     }
@@ -440,7 +409,7 @@ const styles = StyleSheet.create({
     flexWrap:'wrap',
     borderTopWidth:1,
     borderBottomWidth:1,
-    borderColor:GLOBAL_VAR.COLOR.DEVIDER
+    borderColor:GLOBAL.COLOR.DEVIDER
   },
   btn:{
     alignItems:'center',
@@ -454,27 +423,5 @@ const styles = StyleSheet.create({
     height:width/8,
     alignItems:'center',
     justifyContent:'center',
-  },
-  btnTxt:{
-    color:GLOBAL_VAR.COLOR.TEXT_ICON,
-    fontSize:GLOBAL_VAR.FONT.FONT_H1,
-    fontWeight:'bold'
-  },
-  piece:{
-    width:width/8-10,
-    height:width/8-10,
-  },
-  modalContainerStyle:{
-    height:height,
-    width:width,
-    justifyContent:'center',
-    alignItems:'center',
-    backgroundColor:'rgba(0,0,0,0.5)'
-  },
-
-  modalStyle:{
-    width:width-100,
-    borderRadius:2,
-    backgroundColor:'rgba(255,255,255,0.95)',
   },
 });

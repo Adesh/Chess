@@ -1,18 +1,17 @@
 import * as actionTypes from './actions';
-import GLOBAL_VAR    from '../Globals';
+import GLOBAL    from '../Globals';
 const initialState = {
     theme : {
         background: "black",
         color:"red",
         fontSize: 16,
     },
-
     settings: {
-        difficulty: GLOBAL_VAR.APP_SETTING.DEFAULT.difficulty, //'8', // Beginer:5, Pro:8, GrandMaster: 10
-  		sound: GLOBAL_VAR.APP_SETTING.DEFAULT.sound, //true,
-  		vibration: GLOBAL_VAR.APP_SETTING.DEFAULT.vibration, //true,
-        showPossMove: GLOBAL_VAR.APP_SETTING.DEFAULT.showPossMove, //true,
-        showLastMove: GLOBAL_VAR.APP_SETTING.DEFAULT.showLastMove //false
+        difficulty: GLOBAL.APP_SETTING.DEFAULT.difficulty, //'8', // Beginer:5, Pro:8, GrandMaster: 10
+  		sound: GLOBAL.APP_SETTING.DEFAULT.sound, //true,
+  		vibration: GLOBAL.APP_SETTING.DEFAULT.vibration, //true,
+        showPossMove: GLOBAL.APP_SETTING.DEFAULT.showPossMove, //true,
+        showLastMove: GLOBAL.APP_SETTING.DEFAULT.showLastMove //false
     }
 };
 

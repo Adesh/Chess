@@ -1,9 +1,8 @@
-var GLOBAL_VAR = require('../Globals');
-var Toast = require('./GetToast');
+import GLOBAL from '../Globals';
+import Toast from './Toast';
 
-module.exports = function(api_name) {
-	return fetch(GLOBAL_VAR.BASE_URL_API+api_name, {
-	  method: 'GET',
+const API = (api, method = 'GET') => fetch(GLOBAL.BASE_URL_API + api, {
+	  method: method,
 	  headers: {
 	    'Accept': 'application/json',
 	    'Content-Type': 'application/json',
@@ -13,6 +12,6 @@ module.exports = function(api_name) {
 	.then(responseText => responseText) 
 	.catch(error => {
 		Toast('No Internet');
-		//GLOBAL_VAR.NAVIGATOR.push({name:'nointernet'}); 	
-	});
-}
+});
+
+export default API
