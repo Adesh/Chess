@@ -1,0 +1,12 @@
+// theme
+export const CHANGE_THEME = 'CHANGE_THEME';
+
+// settings
+export const CHANGE_SETTINGS = 'CHANGE_SETTINGS';
+
+//game
+export const UPDATE_FEN = 'UPDATE_FEN';
+export const UPDATE_IF_WHITE_SIDE_BOARD = 'UPDATE_IF_WHITE_SIDE_BOARD';
+export const UPDATE_I_AM = 'UPDATE_I_AM';
+export const UPDATE_SELECTED_PIECE = 'UPDATE_SELECTED_PIECE';
+export const UPDATE_POSSIBLE_MOVES = 'UPDATE_POSSIBLE_MOVES';

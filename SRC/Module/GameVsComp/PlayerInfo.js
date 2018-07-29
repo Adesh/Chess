@@ -6,18 +6,20 @@ import {
   ActivityIndicator,
   Dimensions
 } from 'react-native';
-
+import {Chess} from 'chess.js/chess';
 const { width } = Dimensions.get('window');
 
 const PlayerInfo = (props) => { 
+    const chess = new Chess(props.fen)
+
     const txt = getText(
         props.opponentSide,
         props.turn,
         props.iAm,
-        props.chessInstance.game_over(),
-        props.chessInstance.in_check()
+        chess.game_over(),
+        chess.in_check()
     );
-
+     
     return (
         <View style={styles.container} >
             <View style={styles.subcontainer} >       

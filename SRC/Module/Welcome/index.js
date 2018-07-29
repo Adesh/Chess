@@ -12,9 +12,9 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'react-redux';
 
-import * as actionTypes from '../store/actions';
-import Button from '../Helper/Button';
-import GLOBAL from '../Globals';
+import * as actionTypes from '../../actions';
+import Button from '../../Helper/Button';
+import GLOBAL from '../../Globals';
 
 const { width } = Dimensions.get('window');
 
@@ -25,7 +25,7 @@ class Welcome extends Component {
     for(let setting of settings) {
       const val = await AsyncStorage.getItem(setting);
       if(val == null) {
-        await AsyncStorage.setItem(setting, GLOBAL.APP_SETTING.DEFAULT[setting])
+        await AsyncStorage.setItem(setting, GLOBAL.APP_SETTING.DEFAULT[setting].toString())
       } else {
         let parseAuto = (val) => {
           if(val === 'true') return true;
@@ -49,7 +49,7 @@ class Welcome extends Component {
           
           <Image 
             style={styles.logo} 
-            source={require('../Resources/logo.png')} 
+            source={require('../../Resources/logo.png')} 
           />
           
           <Text 
@@ -58,7 +58,7 @@ class Welcome extends Component {
           </Text>
           <Text 
             style={[styles.subHeadingTxt,{color: GLOBAL.COLOR.THEME['swan'].secondaryText,}]}>
-            Robust, RealTime & Minimal
+            Robust, Realtime & Minimal
           </Text>
           
           {Button(

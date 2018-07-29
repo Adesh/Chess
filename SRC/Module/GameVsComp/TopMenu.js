@@ -44,7 +44,7 @@ export default TopMenu  = (props) => {
             size={30} 
             color={GLOBAL.COLOR.THEME['swan'].secondaryText}
           />,
-          props.onBackPress,
+          props.undo,
           [styles.btn, {paddingRight:20}]
         )}
             

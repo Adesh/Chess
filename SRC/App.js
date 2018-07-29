@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import codePush from "react-native-code-push";
 
-import reducer from './store/reducer';
+import reducer from './reducers';
 import Welcome      from './Module/Welcome';
 import GameVsComp   from './Module/GameVsComp';
 import Settings   from './Module/Settings';

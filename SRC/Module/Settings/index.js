@@ -13,9 +13,9 @@ import {
 
 import { connect } from 'react-redux';
 
-import GLOBAL from '../Globals';
-import Button from '../Helper/Button';
-import * as actionTypes from '../store/actions';
+import GLOBAL from '../../Globals';
+import Button from '../../Helper/Button';
+import * as actionTypes from '../../actions';
 
 const {width} = Dimensions.get('window');
 
