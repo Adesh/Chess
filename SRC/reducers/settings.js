@@ -6,7 +6,7 @@ const initialState = {
         difficulty: GLOBAL.APP_SETTING.DEFAULT.difficulty, //'8', // Beginer:5, Pro:8, GrandMaster: 10
   		sound: GLOBAL.APP_SETTING.DEFAULT.sound, //true,
   		vibration: GLOBAL.APP_SETTING.DEFAULT.vibration, //true,
-        showPossMove: GLOBAL.APP_SETTING.DEFAULT.showPossMove, //true,
+        showCellId: GLOBAL.APP_SETTING.DEFAULT.showCellId, //true,
         showLastMove: GLOBAL.APP_SETTING.DEFAULT.showLastMove //false
     },
 };

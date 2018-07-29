@@ -21,7 +21,7 @@ const { width } = Dimensions.get('window');
 class Welcome extends Component {
   
   async componentDidMount() {
-    const settings = [ 'difficulty', 'sound', 'vibration', 'showPossMove', 'showLastMove' ];
+    const settings = [ 'difficulty', 'sound', 'vibration', 'showCellId', 'showLastMove' ];
     for(let setting of settings) {
       const val = await AsyncStorage.getItem(setting);
       if(val == null) {

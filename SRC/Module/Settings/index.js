@@ -36,7 +36,7 @@ class Settings extends Component {
         	<View style={styles.settingItem}>
         		<Text>Difficulty</Text>
             <Picker
-      				  selectedValue={this.props.settings.difficulty.toString()}
+      				  selectedValue={this.props.settings.difficulty}
       				  onValueChange={d => this.updateSetting('difficulty',d)}
                 style={{ height: 45, width: 130, alignItems:'flex-end',justifyContent:'flex-end' }}
             >
@@ -67,9 +67,9 @@ class Settings extends Component {
           <View style={styles.settingItem}>
             <Text>Show Possible Moves</Text>
             <Switch
-              onValueChange={val => this.updateSetting('showPossMove',val)}
+              onValueChange={val => this.updateSetting('showCellId',val)}
               style={{marginBottom: 10}}
-              value={this.props.settings.showPossMove} 
+              value={this.props.settings.showCellId} 
             />
           </View>
 
@@ -110,7 +110,7 @@ class Settings extends Component {
   }
   
   _clearAllData = () => {        
-    const settings = [ 'difficulty', 'sound', 'vibration', 'showPossMove', 'showLastMove' ];
+    const settings = [ 'difficulty', 'sound', 'vibration', 'showCellId', 'showLastMove' ];
     
     for(let setting of settings) {
       this.updateSetting(setting, GLOBAL.APP_SETTING.DEFAULT[setting]); 

@@ -6,7 +6,8 @@ import {
   StatusBar,
   Vibration,
   Platform,
-  Alert
+  Alert,
+  Text
 } from 'react-native';
 
 import { 
@@ -229,72 +230,91 @@ class GameVsComp extends Component {
     const tempCell = this.getCell(i,j);
     this.chess.load(this.state.fen);
     return (
-      <View key={(i*8) + (j)} style={styles.btn}>
+      <View key={(i*8)+j} style={styles.btn}>
         {Button(
-          <View style={[styles.btnView,{backgroundColor:this.getCellColor(i,j,tempCell)}]}>
-            {getPiece(this.chess.get(tempCell))}          
+          <View 
+            style={[
+              styles.btnView,   
+              {backgroundColor:this.getCellColor(i,j,tempCell)}
+            ]}
+          >
+            {getPiece(this.chess.get(tempCell))}  
+            
+            <Text style={styles.cellId}>{this.getCell(i,j)}</Text> 
+
           </View>,
-          () => {
-              const selectedPiece = this.state.selectedPiece;
-              const iAm = this.state.iAm;
-              const possibleMoves = this.state.possibleMoves; 
-        
-              if(selectedPiece === -1){
-                  if( this.chess.get(tempCell) === null ||
-                      this.chess.get(tempCell).color !== iAm )
-                    return;
-                    
-                  return this.setState({
-                      selectedPiece: tempCell,
-                      possibleMoves: this._cleanCellName(this.chess.moves({square: tempCell}))
-                  });
-              }
-              else{ //something already selected
-                    
-                    //deselect it
-                    if( selectedPiece === tempCell ||
-                        possibleMoves.indexOf(tempCell) === -1){
-                      return this.setState({
-                        selectedPiece: -1,
-                        possibleMoves: []
-                      });
-                    }
-                    
-                    //or deselect and select new
-                    if(this.chess.get(tempCell) && this.chess.get(tempCell).color === iAm){                        
-                        return this.setState({
-                          selectedPiece: tempCell,
-                          possibleMoves: this._cleanCellName(this.chess.moves({square: tempCell}))
-                        });
-                    }  
-                    
-                    //move and deselect
-                    if(possibleMoves.indexOf(tempCell) != -1){
-                      var tSelectedPiece = this.chess.get(selectedPiece);
-                      var promotion = '';
-                      if(tSelectedPiece.type === 'p'){
-                          if(tSelectedPiece.color === 'w' && i===8){
-                            promotion = 'q';
-                          }
-                          else if(tSelectedPiece.color === 'b' && i===1){
-                            promotion = 'q';
-                          }
-                      }
-                      
-                      return this.makeMove({
-                        from: selectedPiece, 
-                        to: tempCell,
-                        promotion
-                      }); 
-                    }
-              }
-          },
+          () => this.getCellHandler(i,j),
           styles.btn
         )}
       </View>
     );
   }
   
+  getCellHandler = (i,j) => {
+    const tempCell = this.getCell(i,j);
+    this.chess.load(this.state.fen);
+    
+    const selectedPiece = this.state.selectedPiece;
+    const iAm = this.state.iAm;
+    const possibleMoves = this.state.possibleMoves; 
+    const pieceAtTempCell = this.chess.get(tempCell);
+
+    //not selected
+    if(selectedPiece === -1){
+        if( !pieceAtTempCell ) return;
+        if( pieceAtTempCell.color !== iAm ) return;
+        
+        return this.setState({
+            selectedPiece: tempCell,
+            possibleMoves: this._cleanCellName(this.chess.moves({square: tempCell}))
+        });
+    }
+
+    //something already selected     
+    //or deselect and select new (clicking same color)
+    if( selectedPiece !== -1 &&
+      (pieceAtTempCell && 
+      pieceAtTempCell.color === iAm)) {                        
+      
+      return this.setState({
+          selectedPiece: tempCell,
+          possibleMoves: this._cleanCellName(this.chess.moves({square:tempCell}))
+      });
+    }  
+
+    //something already selected
+    //deselect it (self click, illeagal click)
+    if( selectedPiece !== -1 &&
+        (selectedPiece === tempCell || // if clicked self
+        possibleMoves.indexOf(tempCell) === -1)) { // if clicked illeagal move
+      
+        return this.setState({
+            selectedPiece: -1,
+            possibleMoves: []
+        });
+    }
+    
+    //something already selected
+    //move and deselect
+    if(possibleMoves.indexOf(tempCell) != -1){
+        let tSelectedPiece = this.chess.get(selectedPiece);
+        let promotion = '';
+        
+        if( tSelectedPiece.type === 'p' && 
+            ((tSelectedPiece.color === 'w' && i===8) ||
+            (tSelectedPiece.color === 'b' && i===1))
+        ) {
+          promotion = 'q';
+        }
+            
+        return this.makeMove({
+          from: selectedPiece, 
+          to: tempCell,
+          promotion
+        }); 
+    }
+  };
+
   getCell = (_i,_j) => {
     return {
       1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h'
@@ -302,12 +322,13 @@ class GameVsComp extends Component {
   }
 
   getCellColor = (_i,_j,_cell) => {    
+    
     let clr;
     this.chess.load(this.state.fen);
     let lastMove = this.chess.history()[0];
     let possibleMoves = this.state.possibleMoves;
     let selectedPiece = this.state.selectedPiece;
-
+    
     if((_i%2===0 && _j%2===0) || (_i%2!==0 && _j%2!==0)){
       clr = GLOBAL.COLOR.CELL_DARK;
     }
@@ -324,11 +345,9 @@ class GameVsComp extends Component {
       }
     }
 
-    if(this.props.settings.showPossMove === true){
-      if(selectedPiece !== -1){
-        if(possibleMoves.indexOf(_cell) !== -1){
-          clr = '#FF9419';
-        }
+    if(selectedPiece !== -1){
+      if(possibleMoves.indexOf(_cell) !== -1){
+        clr = '#FF9419';
       }
     }
 
@@ -336,18 +355,15 @@ class GameVsComp extends Component {
   }
   
   _cleanCellName = (moves) => {
-    //let moves = [...moves];
+    let newMoves = [];
     let iAm = this.state.iAm;
+    
     for (let move of moves){
-      if(move === 'O-O'){
-        if(iAm === 'w'){
-          move = 'g1'; //e1 -> g1 
-        }
+      if(move === 'O-O' && iAm === 'w'){
+          newMoves.push('g1')
       }
-      else if(move === 'O-O-O'){
-        if(iAm === 'w'){ 
-          move = 'c1';  //e1 -> c1
-        }
+      else if(move === 'O-O-O' && iAm === 'w'){
+        newMoves.push('g1')
       }
       else{
         move = move
@@ -355,7 +371,6 @@ class GameVsComp extends Component {
               .replace("x", "")
               .replace("Q", "")
               .replace("N", "");
-
         //promotion
         if(move.indexOf('=') === 2){
           move = move.substr(0,2);
@@ -365,10 +380,12 @@ class GameVsComp extends Component {
           // "dxe6"] "Qd7+", "Qxd8+"]
           move = move.substr(-2);
         }
+
+        newMoves.push(move)
       }  
     }
-
-    return moves;
+    
+    return newMoves;
   }
 
 }
@@ -376,7 +393,12 @@ class GameVsComp extends Component {
 const mapStateToProps = state => {
   return {
     theme: state.theme,
-    settings: state.settings
+    settings: state.settings,
+    fen: state.fen,
+    ifWhiteSideBoard: state.ifWhiteSideBoard,
+    iAm: state.iAm,
+    selectedPiece: state.selectedPiece,
+    possibleMoves: state.possibleMoves,
   };
 };
 
@@ -415,4 +437,11 @@ const styles = StyleSheet.create({
     alignItems:'center',
     justifyContent:'center',
   },
+  cellId: {
+    position:'absolute',
+    bottom:0,
+    right:0, 
+    fontSize:9, 
+    color:'black' 
+  }
 });

@@ -13,7 +13,7 @@ module.exports = {
       difficulty: '8', // Beginer:5, Pro:8, GrandMaster: 10
   		sound: true,
   		vibration: true,
-      showPossMove: true,
+      showCellId: true,
       showLastMove: false
     },
   },
