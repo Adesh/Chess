@@ -13,27 +13,27 @@ const game = (state = initialState, action) => {
         case actionTypes.UPDATE_FEN:
             return {
                 ...state,
-                fen: null
+                fen: action.val
             }
         case actionTypes.UPDATE_IF_WHITE_SIDE_BOARD:
             return {
                 ...state,
-                ifWhiteSideBoard: null
+                ifWhiteSideBoard: action.val
             }
         case actionTypes.UPDATE_I_AM:
             return {
                 ...state,
-                iAm: null
+                iAm: action.val
             }
         case actionTypes.UPDATE_SELECTED_PIECE:
             return {
                 ...state,
-                selectedPiece: null
+                selectedPiece: action.val
             }
         case actionTypes.UPDATE_POSSIBLE_MOVES:
             return {
                 ...state,
-                possibleMoves: null
+                possibleMoves: action.val
             }
         
         default:

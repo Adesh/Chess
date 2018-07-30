@@ -23,6 +23,7 @@ class Settings extends Component {
 
   
   render() {
+    console.log(this.props.settings.difficulty);
     return (
       <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
       	
@@ -120,12 +121,11 @@ class Settings extends Component {
   getStorageVar = async (_str) => {
     return await AsyncStorage.getItem(_str);
   }
+  
 };
-
 
 const mapStateToProps = state => {
   return {
-    theme: state.theme,
     settings: state.settings
   };
 };
@@ -134,10 +134,9 @@ const mapDispatchToProps = dispatch => {
   return {
     onSettingsChange : (key, val) => dispatch({
       type: actionTypes.CHANGE_SETTINGS,
-      key: key,
-      val: val
+      key,
+      val,
     }),
-
   };
 };
 

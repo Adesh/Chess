@@ -24,6 +24,7 @@ class Welcome extends Component {
     const settings = [ 'difficulty', 'sound', 'vibration', 'showCellId', 'showLastMove' ];
     for(let setting of settings) {
       const val = await AsyncStorage.getItem(setting);
+      
       if(val == null) {
         await AsyncStorage.setItem(setting, GLOBAL.APP_SETTING.DEFAULT[setting].toString())
       } else {
@@ -36,7 +37,6 @@ class Welcome extends Component {
         this.props.onSettingsChange(setting,parseAuto(val));
       }
     }
-
   }
 
   render() {
@@ -107,7 +107,6 @@ class Welcome extends Component {
 
 const mapStateToProps = state => {
   return {
-    theme: state.theme,
   };
 };
 
@@ -115,8 +114,8 @@ const mapDispatchToProps = dispatch => {
   return {
     onSettingsChange : (key, val) => dispatch({
       type: actionTypes.CHANGE_SETTINGS,
-      key: key,
-      val: val
+      key,
+      val,
     }),
 
   };

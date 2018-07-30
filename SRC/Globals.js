@@ -10,7 +10,7 @@ module.exports = {
   
   APP_SETTING:{
     DEFAULT: {
-      difficulty: '8', // Beginer:5, Pro:8, GrandMaster: 10
+      difficulty: 8, // Beginer:5, Pro:8, GrandMaster: 10
   		sound: true,
   		vibration: true,
       showCellId: true,

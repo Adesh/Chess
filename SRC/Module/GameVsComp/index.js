@@ -15,7 +15,7 @@ import {
   NavigationActions 
 } from 'react-navigation';
 
-import {Chess} from 'chess.js/chess';
+import { Chess } from 'chess.js/chess';
 import Sound from 'react-native-sound';
 import { connect } from 'react-redux';
 
@@ -39,23 +39,21 @@ class GameVsComp extends Component {
       'movesound.wav' :
       '../../Resources/moveSound.wav', 
     Sound.MAIN_BUNDLE,
-    error => console.log('Sound not loaded ',error) 
+    error => console.log('Sound not loaded: ',error) 
   );
 
   constructor(props) {
     super(props);
     this.state = {
       fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-      ifWhiteSideBoard: true,
-      iAm: 'w', //or 'b',
       selectedPiece: -1,
       possibleMoves: [],
     } 
   }
 
   componentDidUpdate = async () => {
-    this.chess.load(this.state.fen);
-    let iAm = this.state.iAm;
+    this.chess.load(this.props.game.fen);
+    let iAm = this.props.game.iAm;
     
     if( this.chess.game_over() || 
         this.chess.in_threefold_repetition()) {
@@ -68,8 +66,8 @@ class GameVsComp extends Component {
   }
   
   render() {
-    this.chess.load(this.state.fen);
-    let iAm = this.state.iAm;
+    this.chess.load(this.props.game.fen);
+    let iAm = this.props.game.iAm;
 
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
@@ -89,7 +87,7 @@ class GameVsComp extends Component {
           <PlayerInfo 
             turn = {this.chess.turn()} 
             iAm = {iAm} 
-            fen = {this.state.fen}
+            fen = {this.props.game.fen}
             opponentSide = {true} 
           />
           
@@ -100,7 +98,7 @@ class GameVsComp extends Component {
           <PlayerInfo 
             turn = {this.chess.turn()} 
             iAm = {iAm} 
-            fen = {this.state.fen}
+            fen = {this.props.game.fen}
             opponentSide={false} 
           />
           
@@ -109,8 +107,8 @@ class GameVsComp extends Component {
   }
 
   getGameStatus = () => {
-    this.chess.load(this.state.fen);
-    let iAm = this.state.iAm;    
+    this.chess.load(this.props.game.fen);
+    let iAm = this.props.game.iAm;    
     if(this.chess.in_checkmate() === true && this.chess.turn() !== iAm)
       return 'Checkmate, You win!';
 
@@ -138,8 +136,10 @@ class GameVsComp extends Component {
   );
 
   suggestion = async () => {
-    const urlLink = `?d=${this.props.settings.difficulty}&fen=${encodeURIComponent(this.state.fen)}`
+    console.log('suggestion',this.props.settings.difficulty)
+    const urlLink = `?d=${this.props.settings.difficulty}&fen=${encodeURIComponent(this.props.game.fen)}`
     let res = await API(urlLink);
+    console.log('res: ',urlLink,res)
     res = res.split(' ');
     let from  = res[1].substr(0,2);
     let to    = res[1].substr(2,2);
@@ -153,16 +153,10 @@ class GameVsComp extends Component {
   }
 
   makeMove = (suggestion) => {
-    let { from, to, promotion } = suggestion;
-    this.chess.load(this.state.fen);
-    this.chess.move({ from, to, promotion });
+    this.chess.load(this.props.game.fen);
+    this.chess.move({ ...suggestion });
     this.notify();
-    
-    return this.setState({
-      selectedPiece: -1,
-      possibleMoves: [],
-      fen: this.chess.fen()
-    });
+    this.updateGame(-1, [], this.chess.fen());
   };     
 
   leaveGame = () => Alert.alert(
@@ -190,22 +184,16 @@ class GameVsComp extends Component {
     if(this.props.settings.sound === true)
       this.FX.play(); 
   }
-
+  
   undo = ()=>{
-    this.chess.load(this.state.fen);
-    if(this.chess.turn() === this.state.iAm){
-      this.chess.undo();
-      this.chess.undo();
-      return this.setState({
-        selectedPiece: -1,//deselect if any
-        possibleMoves: [],
-        fen: this.chess.fen()
-      });
+    this.chess.load(this.props.game.fen);
+    if(this.chess.turn() === this.props.game.iAm){
+      this.updateGame(-1, [], this.chess.undo().undo().fen());
     }
   }
 
   getChessBoard = () => {
-    let ifWhiteSideBoard = this.state.ifWhiteSideBoard;
+    let ifWhiteSideBoard = this.props.game.ifWhiteSideBoard;
     let foo = [];
 
     if(ifWhiteSideBoard === false){
@@ -228,7 +216,7 @@ class GameVsComp extends Component {
   
   renderCell = (i,j,_cell) => {  
     const tempCell = this.getCell(i,j);
-    this.chess.load(this.state.fen);
+    this.chess.load(this.props.game.fen);
     return (
       <View key={(i*8)+j} style={styles.btn}>
         {Button(
@@ -252,34 +240,34 @@ class GameVsComp extends Component {
   
   getCellHandler = (i,j) => {
     const tempCell = this.getCell(i,j);
-    this.chess.load(this.state.fen);
+    this.chess.load(this.props.game.fen);
     
-    const selectedPiece = this.state.selectedPiece;
-    const iAm = this.state.iAm;
-    const possibleMoves = this.state.possibleMoves; 
+    const selectedPiece = this.props.game.selectedPiece;
+    const iAm = this.props.game.iAm;
+    const possibleMoves = this.props.game.possibleMoves; 
     const pieceAtTempCell = this.chess.get(tempCell);
 
     //not selected
     if(selectedPiece === -1){
         if( !pieceAtTempCell ) return;
         if( pieceAtTempCell.color !== iAm ) return;
-        
-        return this.setState({
-            selectedPiece: tempCell,
-            possibleMoves: this._cleanCellName(this.chess.moves({square: tempCell}))
-        });
+        this.updateGame(
+          tempCell, 
+          this._cleanCellName(this.chess.moves({square: tempCell})), 
+          null
+        );
     }
 
     //something already selected     
     //or deselect and select new (clicking same color)
     if( selectedPiece !== -1 &&
-      (pieceAtTempCell && 
-      pieceAtTempCell.color === iAm)) {                        
-      
-      return this.setState({
-          selectedPiece: tempCell,
-          possibleMoves: this._cleanCellName(this.chess.moves({square:tempCell}))
-      });
+        (pieceAtTempCell && 
+        pieceAtTempCell.color === iAm)) {                        
+          this.updateGame(
+            tempCell, 
+            this._cleanCellName(this.chess.moves({square: tempCell})), 
+            null
+          );
     }  
 
     //something already selected
@@ -287,11 +275,7 @@ class GameVsComp extends Component {
     if( selectedPiece !== -1 &&
         (selectedPiece === tempCell || // if clicked self
         possibleMoves.indexOf(tempCell) === -1)) { // if clicked illeagal move
-      
-        return this.setState({
-            selectedPiece: -1,
-            possibleMoves: []
-        });
+          this.updateGame(-1, [], null);
     }
     
     //something already selected
@@ -324,10 +308,10 @@ class GameVsComp extends Component {
   getCellColor = (_i,_j,_cell) => {    
     
     let clr;
-    this.chess.load(this.state.fen);
+    this.chess.load(this.props.game.fen);
     let lastMove = this.chess.history()[0];
-    let possibleMoves = this.state.possibleMoves;
-    let selectedPiece = this.state.selectedPiece;
+    let possibleMoves = this.props.game.possibleMoves;
+    let selectedPiece = this.props.game.selectedPiece;
     
     if((_i%2===0 && _j%2===0) || (_i%2!==0 && _j%2!==0)){
       clr = GLOBAL.COLOR.CELL_DARK;
@@ -338,7 +322,7 @@ class GameVsComp extends Component {
     }
 
     if(this.props.settings.showLastMove === true && lastMove){
-      if(lastMove.from && lastMove.to && lastMove.color !== this.state.iAm){
+      if(lastMove.from && lastMove.to && lastMove.color !== this.props.game.iAm){
         if(possibleMoves.indexOf(_cell) !== -1){
           clr = '#FF9419';
         }
@@ -354,9 +338,9 @@ class GameVsComp extends Component {
     return clr;
   }
   
-  _cleanCellName = (moves) => {
+  _cleanCellName = moves => {
     let newMoves = [];
-    let iAm = this.state.iAm;
+    let iAm = this.props.game.iAm;
     
     for (let move of moves){
       if(move === 'O-O' && iAm === 'w'){
@@ -388,22 +372,52 @@ class GameVsComp extends Component {
     return newMoves;
   }
 
+  updateGame = (selectedPiece, possibleMoves, fen) => {
+    if(selectedPiece)
+      this.props.onUpdateSelectedPiece(selectedPiece);
+    if(possibleMoves)
+      this.props.onUpdatePossibleMoves(possibleMoves);
+    if(fen)
+      this.props.onUpdateFen(fen);
+  };
+
 }
 
 const mapStateToProps = state => {
   return {
-    theme: state.theme,
     settings: state.settings,
-    fen: state.fen,
-    ifWhiteSideBoard: state.ifWhiteSideBoard,
-    iAm: state.iAm,
-    selectedPiece: state.selectedPiece,
-    possibleMoves: state.possibleMoves,
+    game: state.game
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
+
+    onUpdateFen : val => dispatch({
+      type: actionTypes.UPDATE_FEN,
+      val,
+    }),
+
+    onUpdateIfWhiteSideBoard : val => dispatch({
+      type: actionTypes.UPDATE_IF_WHITE_SIDE_BOARD,
+      val,
+    }),
+    
+    onUpdateIAm : val => dispatch({
+      type: actionTypes.UPDATE_I_AM,
+      val,
+    }),
+    
+    onUpdateSelectedPiece : val => dispatch({
+      type: actionTypes.UPDATE_SELECTED_PIECE,
+      val,
+    }),
+    
+    onUpdatePossibleMoves : val => dispatch({
+      type: actionTypes.UPDATE_POSSIBLE_MOVES,
+      val,
+    }),
+  
   };
 };
 
