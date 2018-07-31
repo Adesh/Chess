@@ -27,7 +27,6 @@ import Button from '../../Helper/Button';
 import API from '../../Helper/API';
 import * as actionTypes from '../../actions';
 
-/* promotion fen - "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1" */
 const { width } = Dimensions.get('window');
 
 class GameVsComp extends Component { 
