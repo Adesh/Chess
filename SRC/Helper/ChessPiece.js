@@ -7,48 +7,49 @@ import {
 
 const { width } = Dimensions.get('window');
 
-const getPiece = (piece) => { 
+const ChessPiece = (props) => { 
+    let {piece} = props;
     if(!piece) return null;
+    console.log(piece);
+    const pieceId = (piece.type + piece.color).toLowerCase();
 
-    const pieceImg = (piece.type + piece.color).toLowerCase();
-
-    switch(pieceImg) {
+    switch(pieceId) {
       
       //whites
       case 'kw': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/kW.png')} 
+            source={require('../Resources/Themes/Classic/kW.png')} 
         />;
 
       case 'qw': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/qW.png')} 
+            source={require('../Resources/Themes/Classic/qW.png')} 
         />;
 
       case 'pw': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/pW.png')} 
+            source={require('../Resources/Themes/Classic/pW.png')} 
         />;
       
       case 'rw': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/rW.png')} 
+            source={require('../Resources/Themes/Classic/rW.png')} 
         />; 
 
       case 'bw': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/bW.png')} 
+            source={require('../Resources/Themes/Classic/bW.png')} 
         />;
       
       case 'nw': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/nW.png')} 
+            source={require('../Resources/Themes/Classic/nW.png')} 
         />;
 
 
@@ -56,37 +57,37 @@ const getPiece = (piece) => {
       case 'kb': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/kB.png')} 
+            source={require('../Resources/Themes/Classic/kB.png')} 
         />;
 
       case 'qb': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/qB.png')} 
+            source={require('../Resources/Themes/Classic/qB.png')} 
         />;
 
       case 'pb': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/pB.png')} 
+            source={require('../Resources/Themes/Classic/pB.png')} 
         />;
       
       case 'rb': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/rB.png')} 
+            source={require('../Resources/Themes/Classic/rB.png')} 
         />; 
 
       case 'bb': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/bB.png')} 
+            source={require('../Resources/Themes/Classic/bB.png')} 
         />;
       
       case 'nb': 
         return <Image 
             style={styles.piece} 
-            source={require('../../Resources/Themes/Classic/nB.png')} 
+            source={require('../Resources/Themes/Classic/nB.png')} 
         />;  
 
       default: 
@@ -95,7 +96,7 @@ const getPiece = (piece) => {
 
 };
 
-export default getPiece;
+export default ChessPiece;
 
 const styles = StyleSheet.create({  
     piece:{
