@@ -84,7 +84,7 @@ const getCellColor = (props, cell) => {
             GLOBAL.COLOR.CELL_DARK;
 
     // selected piece color
-    if(selectedPiece > -1 && possibleMoves.indexOf(cell) > -1)
+    if(selectedPiece !== -1 && possibleMoves.indexOf(cell) > -1)
       clr = '#FF9419';
 
     return clr;
@@ -100,7 +100,6 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         possibleMoves 
     } = props;
 
-    console.log("getCellHandler",pieceAtCell);
     //not selected
     if(selectedPiece === -1){
         if( pieceAtCell && pieceAtCell.color !== iAm ) return;
@@ -108,6 +107,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         props.updateGame(
           cell, 
           cleanCellName(chess.moves({square: cell}), iAm), 
+          null,
           null
         );
     }
@@ -121,6 +121,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
           props.updateGame(
             cell, 
             cleanCellName(chess.moves({square: cell})), 
+            null,
             null
           );
     }  
@@ -131,7 +132,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         (selectedPiece === cell || // if clicked self
         possibleMoves.indexOf(cell) === -1)) { // if clicked illeagal move
             console.log("//something already selected, deselect it (self click, illeagal click), if clicked self, ˀif clicked illeagal move");
-            props.updateGame(-1, [], null);
+            props.updateGame(-1, [], null, null);
     }
     
     //something already selected

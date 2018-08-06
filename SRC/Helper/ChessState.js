@@ -65,12 +65,22 @@ const ChessState = {
   makeMove: (chess,suggestion,notify,updateGame) => {
     chess.move({ ...suggestion });
     notify();
-    updateGame(-1, [], chess.fen());
+    updateGame(
+      -1, 
+      [], 
+      chess.fen(),
+      chess.turn()
+    );
   },     
 
   undo: (chess,iAm,updateGame) => {
     if(chess.turn() === iAm){
-      updateGame(-1, [], chess.undo().undo().fen());
+      updateGame(
+        -1, 
+        [], 
+        chess.undo().undo().fen(),
+        chess.turn()
+      );
     }
   },
 

@@ -37,9 +37,13 @@ class GameVsComp extends Component {
   );
 
   componentDidUpdate = async () => {
-    let {fen,iAm, difficulty} = this.props.game;
+    let {fen,iAm} = this.props.game;
+    let {difficulty} = this.props.settings;
+
     this.chess.load(fen);
 
+    console.log("componentDidUpdate",iAm, difficulty);
+    
     if( this.chess.game_over() || 
         this.chess.in_threefold_repetition()) {
           const status = ChessState.gameStatus(this.chess,iAm);
@@ -47,13 +51,14 @@ class GameVsComp extends Component {
     }
     
     if( this.chess.turn() !== iAm) {
+        console.log('computer turn');
         const suggestion = await ChessState.suggestion(difficulty, fen);
+        console.log(suggestion);
         return ChessState.makeMove(this.chess,suggestion,this.notify,this.updateGame);   
     }      
   }
   
   render() {
-    //console.log('render props',this.props)
     this.chess.load(this.props.game.fen);
     let {
       possibleMoves,
@@ -129,15 +134,7 @@ class GameVsComp extends Component {
     return navigation.dispatch(resetAction);
   };
 
-  updateGame = (selectedPiece, possibleMoves, fen) => {
-    this.props.onUpdateGame(selectedPiece, possibleMoves, fen);
-    //if(selectedPiece)
-    //  this.props.onUpdateSelectedPiece(selectedPiece);
-    //if(possibleMoves)
-    //  this.props.onUpdatePossibleMoves(possibleMoves);
-    //if(fen)
-    //  this.props.onUpdateFen(fen);
-  };
+  updateGame = this.props.onUpdateGame;
 
 }
 
@@ -151,36 +148,17 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
 
-    onUpdateFen : val => dispatch({
-      type: actionTypes.UPDATE_FEN,
-      val,
-    }),
-
     onUpdateIfWhiteSideBoard : val => dispatch({
       type: actionTypes.UPDATE_IF_WHITE_SIDE_BOARD,
       val,
     }),
-    
-    onUpdateIAm : val => dispatch({
-      type: actionTypes.UPDATE_I_AM,
-      val,
-    }),
-    
-    onUpdateSelectedPiece : val => dispatch({
-      type: actionTypes.UPDATE_SELECTED_PIECE,
-      val,
-    }),
-    
-    onUpdatePossibleMoves : val => dispatch({
-      type: actionTypes.UPDATE_POSSIBLE_MOVES,
-      val,
-    }),
 
-    onUpdateGame : (selectedPiece, possibleMoves, fen) => dispatch({
+    onUpdateGame : (selectedPiece, possibleMoves, fen, turn) => dispatch({
       type: actionTypes.UPDATE_GAME,
       selectedPiece, 
       possibleMoves, 
-      fen
+      fen,
+      turn
     }),
   
   };
