@@ -35,6 +35,15 @@ const game = (state = initialState, action) => {
                 ...state,
                 possibleMoves: action.val
             }
+
+        case actionTypes.UPDATE_GAME: 
+            console.log("updateGame reducer",action);
+            return {
+                ...state,
+                selectedPiece : action.selectedPiece, 
+                possibleMoves : action.possibleMoves, 
+                fen : action.fen ? action.fen : state.fen
+            }    
         
         default:
             return state;    

@@ -44,7 +44,6 @@ const ChessBoard = (chess, props, ifWhiteSideBoard ) => {
         for(let j of COLUMNS) {          
           const cell = j+i;
           const pieceAtCell = chess.get(cell);
-          console.log('pieceAtCell',pieceAtCell)
           board.push(getCell(chess, props, cell, pieceAtCell));
         }
     }
@@ -92,8 +91,8 @@ const getCellColor = (props, cell) => {
 };
 
 const getCellHandler = (chess, props, cell, pieceAtCell) => {
-    if(!pieceAtCell) 
-        return;
+    //if(pieceAtCell === null || pieceAtCell === undefined) 
+    //    return;
     
     const { 
         selectedPiece, 
@@ -101,9 +100,11 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         possibleMoves 
     } = props;
 
+    console.log("getCellHandler",pieceAtCell);
     //not selected
     if(selectedPiece === -1){
-        if( pieceAtCell.color !== iAm ) return;
+        if( pieceAtCell && pieceAtCell.color !== iAm ) return;
+        console.log("not selected");
         props.updateGame(
           cell, 
           cleanCellName(chess.moves({square: cell}), iAm), 
@@ -116,6 +117,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
     if( selectedPiece !== -1 &&
         (pieceAtCell && 
         pieceAtCell.color === iAm)) {                        
+          console.log("something already selected, or deselect and select new (clicking same color)");
           props.updateGame(
             cell, 
             cleanCellName(chess.moves({square: cell})), 
@@ -128,12 +130,14 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
     if( selectedPiece !== -1 &&
         (selectedPiece === cell || // if clicked self
         possibleMoves.indexOf(cell) === -1)) { // if clicked illeagal move
-          props.updateGame(-1, [], null);
+            console.log("//something already selected, deselect it (self click, illeagal click), if clicked self, ˀif clicked illeagal move");
+            props.updateGame(-1, [], null);
     }
     
     //something already selected
     //move and deselect
     if(possibleMoves.indexOf(cell) != -1){
+        console.log("something already selected, move and deselect")
         let tSelectedPiece = chess.get(selectedPiece);
         let promotion = '';
         

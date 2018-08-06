@@ -65,7 +65,7 @@ const ChessState = {
   makeMove: (chess,suggestion,notify,updateGame) => {
     chess.move({ ...suggestion });
     notify();
-    updateGame(-1, [], this.chess.fen());
+    updateGame(-1, [], chess.fen());
   },     
 
   undo: (chess,iAm,updateGame) => {

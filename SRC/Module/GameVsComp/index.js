@@ -37,7 +37,7 @@ class GameVsComp extends Component {
   );
 
   componentDidUpdate = async () => {
-    let {fen,iAm, difficulty} = this.props;
+    let {fen,iAm, difficulty} = this.props.game;
     this.chess.load(fen);
 
     if( this.chess.game_over() || 
@@ -53,6 +53,7 @@ class GameVsComp extends Component {
   }
   
   render() {
+    //console.log('render props',this.props)
     this.chess.load(this.props.game.fen);
     let {
       possibleMoves,
@@ -60,8 +61,7 @@ class GameVsComp extends Component {
       iAm,
       difficulty,
       fen
-    } = this.props;
-
+    } = this.props.game;
     const ifWhiteSideBoard = true;//iAm == 'w';
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
@@ -130,12 +130,13 @@ class GameVsComp extends Component {
   };
 
   updateGame = (selectedPiece, possibleMoves, fen) => {
-    if(selectedPiece)
-      this.props.onUpdateSelectedPiece(selectedPiece);
-    if(possibleMoves)
-      this.props.onUpdatePossibleMoves(possibleMoves);
-    if(fen)
-      this.props.onUpdateFen(fen);
+    this.props.onUpdateGame(selectedPiece, possibleMoves, fen);
+    //if(selectedPiece)
+    //  this.props.onUpdateSelectedPiece(selectedPiece);
+    //if(possibleMoves)
+    //  this.props.onUpdatePossibleMoves(possibleMoves);
+    //if(fen)
+    //  this.props.onUpdateFen(fen);
   };
 
 }
@@ -173,6 +174,13 @@ const mapDispatchToProps = dispatch => {
     onUpdatePossibleMoves : val => dispatch({
       type: actionTypes.UPDATE_POSSIBLE_MOVES,
       val,
+    }),
+
+    onUpdateGame : (selectedPiece, possibleMoves, fen) => dispatch({
+      type: actionTypes.UPDATE_GAME,
+      selectedPiece, 
+      possibleMoves, 
+      fen
     }),
   
   };

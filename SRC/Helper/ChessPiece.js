@@ -10,7 +10,7 @@ const { width } = Dimensions.get('window');
 const ChessPiece = (props) => { 
     let {piece} = props;
     if(!piece) return null;
-    console.log(piece);
+    //console.log(piece);
     const pieceId = (piece.type + piece.color).toLowerCase();
 
     switch(pieceId) {
