@@ -4,7 +4,7 @@ const initialState = {
     fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     ifWhiteSideBoard: true,
     iAm: 'w',
-    turn: 'w',
+    //turn: 'w',
     selectedPiece: -1,
     possibleMoves: [],
     difficulty: 5,
@@ -30,7 +30,7 @@ const game = (state = initialState, action) => {
                 selectedPiece : action.selectedPiece, 
                 possibleMoves : action.possibleMoves, 
                 fen : action.fen ? action.fen : state.fen,
-                turn : action.turn ? action.turn : state.turn,  
+                //turn : action.turn ? action.turn : state.turn,  
             }    
         
         default:

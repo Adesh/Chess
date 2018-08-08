@@ -42,8 +42,6 @@ class GameVsComp extends Component {
 
     this.chess.load(fen);
 
-    console.log("componentDidUpdate",iAm, difficulty);
-    
     if( this.chess.game_over() || 
         this.chess.in_threefold_repetition()) {
           const status = ChessState.gameStatus(this.chess,iAm);
@@ -51,9 +49,7 @@ class GameVsComp extends Component {
     }
     
     if( this.chess.turn() !== iAm) {
-        console.log('computer turn');
         const suggestion = await ChessState.suggestion(difficulty, fen);
-        console.log(suggestion);
         return ChessState.makeMove(this.chess,suggestion,this.notify,this.updateGame);   
     }      
   }

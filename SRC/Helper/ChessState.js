@@ -68,8 +68,8 @@ const ChessState = {
     updateGame(
       -1, 
       [], 
-      chess.fen(),
-      chess.turn()
+      chess.fen()//,
+      //chess.turn()
     );
   },     
 
@@ -78,8 +78,8 @@ const ChessState = {
       updateGame(
         -1, 
         [], 
-        chess.undo().undo().fen(),
-        chess.turn()
+        chess.undo().undo().fen()//,
+        //chess.turn()
       );
     }
   },

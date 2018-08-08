@@ -79,6 +79,24 @@ class Welcome extends Component {
             styles.btn
           )}
 
+          {Button(
+            <View style={[styles.btnView,{backgroundColor: GLOBAL.COLOR.THEME['swan'].darkPrimary}]}>
+              <Icon 
+                name='md-person'
+                size={GLOBAL.FONT.HEADER}
+                color={GLOBAL.COLOR.THEME['swan'].textPrimary}
+              />
+              <Text style={[styles.btnTxt,{color: GLOBAL.COLOR.THEME['swan'].textPrimary}]}>vs</Text>
+              <Icon 
+                name='md-person'
+                size={GLOBAL.FONT.HEADER}
+                color={GLOBAL.COLOR.THEME['swan'].textPrimary}
+              />
+            </View>,
+            ()=>this.navigate('GameVsPlayer'),
+            styles.btn
+          )}
+
           
 
           {Button(
@@ -152,8 +170,8 @@ const styles = StyleSheet.create({
     fontWeight:'bold'
   },
   btn:{
-    marginTop:50,
-    height:80,
+    marginTop:20,
+    height:60,
     alignItems:'center',
     justifyContent:'center'
   },
@@ -164,8 +182,7 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     justifyContent:'space-around',
-    paddingTop:20,
-    paddingBottom:20,
+    paddingVertical:20,
     borderRadius:2,
   },
   btnTxt:{
