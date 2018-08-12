@@ -12,10 +12,16 @@ import {
 } from 'react-native';
 
 import { connect } from 'react-redux';
+import firebase from 'react-native-firebase';
 
 import GLOBAL from '../../Globals';
 import Button from '../../Helper/Button';
 import * as actionTypes from '../../actions';
+
+const Banner = firebase.admob.Banner;
+const AdRequest = firebase.admob.AdRequest;
+const request = new AdRequest();
+request.addKeyword('SettingBanner');
 
 const {width} = Dimensions.get('window');
 
@@ -83,6 +89,15 @@ class Settings extends Component {
             />
           </View>
 
+          <View style={styles.settingItem}>
+            <Text>Show Cell Id</Text>
+            <Switch
+              onValueChange={val => this.updateSetting('showCellId',val)}
+              style={{marginBottom: 10}}
+              value={this.props.settings.showCellId} 
+            />
+          </View>
+
         </ScrollView>
 
         <View style={{justifyContent:'flex-end',alignItems:'center'}}>
@@ -92,6 +107,16 @@ class Settings extends Component {
             {margin:10,padding:10,backgroundColor:'#f6f6f6'}
           )}
         </View>
+
+        <Banner
+            unitId={'ca-app-pub-8926092521677174/3039880861'}
+            size={"LARGE_BANNER"}
+            request={request.build()}
+            onAdLoaded={() => {
+              console.log('Advert loaded');
+            }}
+        />
+
       </View>
     );
   }

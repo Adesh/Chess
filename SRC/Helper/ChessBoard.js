@@ -37,14 +37,14 @@ const BLACK_CELLS = [
 
 const transpose = array => array[0].map((col, i) => array.map(row => row[i]));
 
-const ChessBoard = (chess, props, ifWhiteSideBoard ) => {
+const ChessBoard = (chess, props, ifWhiteSideBoard, showCellId ) => {
     let board = [];
 
     for(let i of ROWS){
         for(let j of COLUMNS) {          
           const cell = j+i;
           const pieceAtCell = chess.get(cell);
-          board.push(getCell(chess, props, cell, pieceAtCell));
+          board.push(getCell(chess, props, cell, pieceAtCell, showCellId));
         }
     }
     
@@ -54,7 +54,7 @@ const ChessBoard = (chess, props, ifWhiteSideBoard ) => {
     return transpose(transpose(board));
 };
 
-const getCell = (chess, props, cell, pieceAtCell) => {
+const getCell = (chess, props, cell, pieceAtCell, showCellId) => {
     return <View key={cell}> 
         {Button(
             <View 
@@ -63,7 +63,7 @@ const getCell = (chess, props, cell, pieceAtCell) => {
                 }]} 
             >
                 <ChessPiece piece={pieceAtCell} />   
-                <Text style={styles.cellId}>{cell}</Text> 
+            {showCellId?<Text style={styles.cellId}>{cell}</Text>:null} 
             </View>,
             () => getCellHandler(chess, props, cell, pieceAtCell),
             styles.btn

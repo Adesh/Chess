@@ -6,7 +6,8 @@ const initialState = {
   	sound: GLOBAL.APP_SETTING.DEFAULT.sound, //true,
   	vibration: GLOBAL.APP_SETTING.DEFAULT.vibration, //true,
     showCellId: GLOBAL.APP_SETTING.DEFAULT.showCellId, //true,
-    showLastMove: GLOBAL.APP_SETTING.DEFAULT.showLastMove //false
+    showLastMove: GLOBAL.APP_SETTING.DEFAULT.showLastMove, //false
+    showCellId: GLOBAL.APP_SETTING.DEFAULT.showCellId, //false
 };
 
 const settings = (state = initialState, action) => {

@@ -14,7 +14,8 @@ module.exports = {
   		sound: true,
   		vibration: true,
       showCellId: true,
-      showLastMove: false
+      showLastMove: false,
+      showCellId: false,
     },
   },
 

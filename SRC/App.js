@@ -9,15 +9,19 @@ import Welcome      from './Module/Welcome';
 import GameVsComp   from './Module/Game/GameVsComp';
 import GameVsPlayer   from './Module/Game/GameVsPlayer';
 import Settings   from './Module/Settings';
+import PrivacyPolicy from "./Module/AboutUs/PrivacyPolicy";
+import Termsconditions from "./Module/AboutUs/Termsconditions";
 
 const store = createStore(reducer);
 
 const RootStack = createStackNavigator(
   {
-    Welcome: Welcome,
-    GameVsComp: GameVsComp,
-    GameVsPlayer: GameVsPlayer,
-    Settings: Settings
+    Welcome,
+    GameVsComp,
+    GameVsPlayer,
+    Settings,
+    PrivacyPolicy,
+    Termsconditions
   },
   {
     initialRouteName: 'Welcome',

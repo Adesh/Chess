@@ -63,6 +63,11 @@ class GameVsComp extends Component {
       difficulty,
       fen
     } = this.props.game;
+    
+    let {
+      showCellId
+    } = this.props.settings;
+
     const ifWhiteSideBoard = true;//iAm == 'w';
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
@@ -96,7 +101,8 @@ class GameVsComp extends Component {
                   updateGame:this.updateGame,     
                   makeMove: (suggestion) => ChessState.makeMove(this.chess,suggestion,this.notify,this.updateGame)
                 }, 
-                ifWhiteSideBoard
+                ifWhiteSideBoard,
+                showCellId
             )}
           </View>
             

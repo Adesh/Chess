@@ -11,16 +11,24 @@ import {
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'react-redux';
+import firebase from 'react-native-firebase';
 
 import * as actionTypes from '../../actions';
 import Button from '../../Helper/Button';
 import GLOBAL from '../../Globals';
 
+
+const Banner = firebase.admob.Banner;
+const AdRequest = firebase.admob.AdRequest;
+const request = new AdRequest();
+request.addKeyword('WelcomeBanner');
+
 const { width } = Dimensions.get('window');
 
-class Welcome extends Component {
-  
+class Welcome extends Component {  
   async componentDidMount() {
+    firebase.admob('ca-app-pub-8926092521677174~1925275591')
+
     const settings = [ 'difficulty', 'sound', 'vibration', 'showCellId', 'showLastMove' ];
     for(let setting of settings) {
       const val = await AsyncStorage.getItem(setting);
@@ -28,7 +36,7 @@ class Welcome extends Component {
       if(val == null) {
         await AsyncStorage.setItem(setting, GLOBAL.APP_SETTING.DEFAULT[setting].toString())
       } else {
-        let parseAuto = (val) => {
+        let parseAuˀto = (val) => {
           if(val === 'true') return true;
           if(val === 'false') return false;
           if(!isNaN(val)) return parseInt(val);
@@ -45,7 +53,7 @@ class Welcome extends Component {
           <StatusBar
             backgroundColor="transparent"
             barStyle="dark-content" 
-        />
+          />
           
           <Image 
             style={styles.logo} 
@@ -54,21 +62,21 @@ class Welcome extends Component {
           
           <Text 
             style={[styles.headingTxt,{color: GLOBAL.COLOR.THEME['swan'].secondaryText,}]}>
-            Chess
+            {' Chess '} 
           </Text>
           <Text 
             style={[styles.subHeadingTxt,{color: GLOBAL.COLOR.THEME['swan'].secondaryText,}]}>
-            Robust, Realtime & Minimal
+            {' Robust, Realtime & Minimal '}
           </Text>
           
           {Button(
-            <View style={[styles.btnView,{backgroundColor: GLOBAL.COLOR.THEME['swan'].darkPrimary}]}>
+            <View style={styles.btnView}>
               <Icon 
                 name='md-person'
                 size={GLOBAL.FONT.HEADER}
                 color={GLOBAL.COLOR.THEME['swan'].textPrimary}
               />
-              <Text style={[styles.btnTxt,{color: GLOBAL.COLOR.THEME['swan'].textPrimary}]}>vs</Text>
+              <Text style={styles.btnTxt}>vs</Text>
               <Icon 
                 name='md-laptop'
                 size={GLOBAL.FONT.HEADER}
@@ -76,17 +84,17 @@ class Welcome extends Component {
               />
             </View>,
             ()=>this.navigate('GameVsComp'),
-            styles.btn
+            {}
           )}
 
           {Button(
-            <View style={[styles.btnView,{backgroundColor: GLOBAL.COLOR.THEME['swan'].darkPrimary}]}>
+            <View style={styles.btnView}>
               <Icon 
                 name='md-person'
                 size={GLOBAL.FONT.HEADER}
                 color={GLOBAL.COLOR.THEME['swan'].textPrimary}
               />
-              <Text style={[styles.btnTxt,{color: GLOBAL.COLOR.THEME['swan'].textPrimary}]}>vs</Text>
+              <Text style={styles.btnTxt}>vs</Text>
               <Icon 
                 name='md-person'
                 size={GLOBAL.FONT.HEADER}
@@ -94,7 +102,7 @@ class Welcome extends Component {
               />
             </View>,
             ()=>this.navigate('GameVsPlayer'),
-            styles.btn
+            {marginBottom:10}
           )}
 
           
@@ -106,13 +114,23 @@ class Welcome extends Component {
               color={GLOBAL.COLOR.THEME['swan'].secondaryText}
             />,
             ()=>this.navigate('Settings'),
-            styles.btn
+            {marginVertical:5,paddingVertical:5}
           )}
 
-        
-          <View style={styles.footer}>
-            <Text style={[styles.footerTxt,{color: GLOBAL.COLOR.THEME['swan'].secondaryText}]}>Euristico</Text>
-          </View>
+          <Text style={styles.footer}>
+            <Text onPress={()=>this.navigate('PrivacyPolicy')} style={styles.footerTxt}>Privacy Policy</Text>
+            <Text>{', '}</Text> 
+            <Text onPress={()=>this.navigate('Termsconditions')} style={styles.footerTxt}>Terms & Conditions</Text>
+          </Text>
+
+          <Banner
+            unitId={'ca-app-pub-8926092521677174/5743857831'}
+            size={"LARGE_BANNER"}
+            request={request.build()}
+            onAdLoaded={() => {
+              console.log('Advert loaded');
+            }}
+          />
         </View>  
     );
   }
@@ -144,7 +162,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(Welcome);
 
 const styles = StyleSheet.create({
   maincontainer: {
-    flex: 1,
+    flex:1,
     alignItems:'center',
     justifyContent:'center',
   },
@@ -159,41 +177,45 @@ const styles = StyleSheet.create({
     fontWeight:'normal'
   },
   footer:{
-    position:'absolute',
-    bottom:0,
     width:width,
+    textAlign:'center',
+    justifyContent:'center',
+    alignItems:'center',
   },
   footerTxt:{
+    color: GLOBAL.COLOR.THEME['swan'].secondaryText,
     textAlign:'center',
     fontSize:GLOBAL.FONT.FONT_H3,
     color: GLOBAL.COLOR.secondaryText,
-    fontWeight:'bold'
-  },
-  btn:{
-    marginTop:20,
-    height:60,
-    alignItems:'center',
-    justifyContent:'center'
+    marginHorizontal:5,
   },
   btnView:{
-    flex:1,
+    //height:
+    marginTop:15,
+    backgroundColor: GLOBAL.COLOR.THEME['swan'].darkPrimary,
+    //flex:1,
     width:width/2,
-    backgroundColor:GLOBAL.COLOR.PRIMARY,
+    //backgroundColor:GLOBAL.COLOR.PRIMARY,
     flexDirection:'row',
     alignItems:'center',
     justifyContent:'space-around',
-    paddingVertical:20,
+    paddingVertical:5,
     borderRadius:2,
   },
   btnTxt:{
+    color: GLOBAL.COLOR.THEME['swan'].textPrimary,
     color:GLOBAL.COLOR.TEXT_ICON,
     fontSize:GLOBAL.FONT.FONT_H1,
     fontWeight:'bold'
   },
   logo: {
-    marginTop: 30,
-    marginBottom: 30,
-    height: 120,
-    width: 120
+    marginVertical: 20,
+    height: 100,
+    width: 100
+  },
+  footerBtn: {
+    paddingRight:3,
+    paddingVertical:5,
+
   }
 });
