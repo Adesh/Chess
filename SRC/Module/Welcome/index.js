@@ -28,6 +28,8 @@ const { width } = Dimensions.get('window');
 class Welcome extends Component {  
   async componentDidMount() {
     firebase.admob('ca-app-pub-8926092521677174~1925275591')
+    let analytics = firebase.analytics()
+    analytics.setCurrentScreen('Welcome');
 
     const settings = [ 'difficulty', 'sound', 'vibration', 'showCellId', 'showLastMove' ];
     for(let setting of settings) {
@@ -55,6 +57,8 @@ class Welcome extends Component {
             barStyle="dark-content" 
           />
           
+          <View style={{flex:1}}/>
+
           <Image 
             style={styles.logo} 
             source={require('../../Resources/logo.png')} 
@@ -69,6 +73,8 @@ class Welcome extends Component {
             {' Robust, Realtime & Minimal '}
           </Text>
           
+          <View style={{flex:1}}/>
+
           {Button(
             <View style={styles.btnView}>
               <Icon 
@@ -76,7 +82,7 @@ class Welcome extends Component {
                 size={GLOBAL.FONT.HEADER}
                 color={GLOBAL.COLOR.THEME['swan'].textPrimary}
               />
-              <Text style={styles.btnTxt}>vs</Text>
+              <Text style={styles.btnTxt}>{'vs'}</Text>
               <Icon 
                 name='md-laptop'
                 size={GLOBAL.FONT.HEADER}
@@ -94,7 +100,7 @@ class Welcome extends Component {
                 size={GLOBAL.FONT.HEADER}
                 color={GLOBAL.COLOR.THEME['swan'].textPrimary}
               />
-              <Text style={styles.btnTxt}>vs</Text>
+              <Text style={styles.btnTxt}>{'vs'}</Text>
               <Icon 
                 name='md-person'
                 size={GLOBAL.FONT.HEADER}
@@ -105,7 +111,7 @@ class Welcome extends Component {
             {marginBottom:10}
           )}
 
-          
+          <View style={{flex:1}}/>
 
           {Button(
             <Icon 
@@ -117,11 +123,15 @@ class Welcome extends Component {
             {marginVertical:5,paddingVertical:5}
           )}
 
+          
+
           <Text style={styles.footer}>
             <Text onPress={()=>this.navigate('PrivacyPolicy')} style={styles.footerTxt}>Privacy Policy</Text>
             <Text>{', '}</Text> 
             <Text onPress={()=>this.navigate('Termsconditions')} style={styles.footerTxt}>Terms & Conditions</Text>
           </Text>
+          
+          <View style={{flex:1}}/>
 
           <Banner
             unitId={'ca-app-pub-8926092521677174/5743857831'}
@@ -168,13 +178,11 @@ const styles = StyleSheet.create({
   },
   headingTxt:{
     fontSize:GLOBAL.FONT.HEADER,
-    color: GLOBAL.COLOR.PRIMARY,
-    fontWeight:'bold'
+    color: GLOBAL.COLOR.PRIMARY,  
   },
   subHeadingTxt:{
     fontSize:GLOBAL.FONT.SUB_HEADER,
     color: GLOBAL.COLOR.secondaryText,
-    fontWeight:'normal'
   },
   footer:{
     width:width,
@@ -205,8 +213,6 @@ const styles = StyleSheet.create({
   btnTxt:{
     color: GLOBAL.COLOR.THEME['swan'].textPrimary,
     color:GLOBAL.COLOR.TEXT_ICON,
-    fontSize:GLOBAL.FONT.FONT_H1,
-    fontWeight:'bold'
   },
   logo: {
     marginVertical: 20,

@@ -5,12 +5,16 @@ import {
   Dimensions,
   StatusBar,
   Platform,
+  Vibration,
+  Alert
 } from 'react-native';
 
 import { 
   StackActions, 
   NavigationActions 
 } from 'react-navigation';
+
+import { AndroidBackHandler } from 'react-navigation-backhandler';
 
 import { connect } from 'react-redux';
 import PlayerInfo from './PlayerInfo';
@@ -21,11 +25,15 @@ import ChessState from '../../Helper/ChessState';
 import { Chess } from 'chess.js/chess';
 import Sound from 'react-native-sound';
 import * as actionTypes from '../../actions';
-
+import firebase from 'react-native-firebase';
 const { width } = Dimensions.get('window');
 
 class GameVsComp extends Component { 
-  
+  componentDidMount() {
+    let analytics = firebase.analytics()
+    analytics.setCurrentScreen('GameVsPlayer');
+  }
+
   chess = new Chess();
   
   FX = new Sound(
@@ -53,15 +61,31 @@ class GameVsComp extends Component {
         return ChessState.makeMove(this.chess,suggestion,this.notify,this.updateGame);   
     }      
   }
-  
+
+  hint = async () => {
+    let {
+      difficulty,
+      fen
+    } = this.props.game;
+
+    const suggestion = await ChessState.suggestion(difficulty, fen);
+
+    Alert.alert(
+      'Hint',
+      `Do you want to move ${suggestion.from} to ${suggestion.to}?`,  
+      [
+        {text: 'No', onPress: () => {}, style: 'cancel'},
+        {text: 'Yes', onPress: () => ChessState.makeMove(this.chess,suggestion,this.notify,this.updateGame) },
+      ]
+    );
+  };
+
   render() {
     this.chess.load(this.props.game.fen);
     let {
       possibleMoves,
       selectedPiece,
       iAm,
-      difficulty,
-      fen
     } = this.props.game;
     
     let {
@@ -70,6 +94,7 @@ class GameVsComp extends Component {
 
     const ifWhiteSideBoard = true;//iAm == 'w';
     return (
+      <AndroidBackHandler onBackPress={() => ChessState.undo(this.chess,iAm,this.updateGame)}>
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
           
           <StatusBar
@@ -79,7 +104,7 @@ class GameVsComp extends Component {
 
           <TopMenu  
             leaveGame = {() => ChessState.leaveGame('Leave Game', 'Are you sure about leaving the game?')}
-            hint = {async () => ChessState.makeMove(this.chess,await ChessState.suggestion(difficulty, fen),this.notify,this.updateGame)}
+            hint = {this.hint}
             undo = {() => ChessState.undo(this.chess,iAm,this.updateGame)}
             navigate = {this.props.navigation.navigate}
           />  
@@ -113,18 +138,19 @@ class GameVsComp extends Component {
             opponentSide={false} 
           />
           
-        </View>  
+        </View> 
+      </AndroidBackHandler>   
     );
   }
 
-  notify = (vibration,sound,FX) => {
-    try{
-      if(vibration === true) 
-        Vibration.vibrate();
-      if(sound === true)
-        FX.play(); 
-    } catch(err) {
-    }    
+  notify = () => {
+      const {
+        vibration,
+        sound
+      } = this.props.settings;
+      
+      if(vibration) Vibration.vibrate();
+      if(sound) this.FX.play();     
   };
 
   resetToHome = (navigation) => {
@@ -155,12 +181,11 @@ const mapDispatchToProps = dispatch => {
       val,
     }),
 
-    onUpdateGame : (selectedPiece, possibleMoves, fen, turn) => dispatch({
+    onUpdateGame : (selectedPiece, possibleMoves, fen) => dispatch({
       type: actionTypes.UPDATE_GAME,
       selectedPiece, 
       possibleMoves, 
-      fen,
-      turn
+      fen
     }),
   
   };

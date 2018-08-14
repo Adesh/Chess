@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import GLOBAL from '../Globals';
 
-const Toast = (message, duration) => {
+const Toast = (message, duration = 'short') => {
 
 	if(GLOBAL.PLATFORM == 'ANDROID'){
 		return ToastAndroid.show(

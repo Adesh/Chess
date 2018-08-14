@@ -27,7 +27,10 @@ const {width} = Dimensions.get('window');
 
 class Settings extends Component {
 
-  
+  componentDidMount() {
+    let analytics = firebase.analytics()
+    analytics.setCurrentScreen('Settings');
+  }
   render() {
     console.log(this.props.settings.difficulty);
     return (
@@ -102,7 +105,7 @@ class Settings extends Component {
 
         <View style={{justifyContent:'flex-end',alignItems:'center'}}>
           {Button(
-            <Text style={{fontWeight:'bold'}}>Clear States & Data</Text>,
+            <Text style={{}}>{'Clear States & Data'}</Text>,
             this._clearAllData,
             {margin:10,padding:10,backgroundColor:'#f6f6f6'}
           )}

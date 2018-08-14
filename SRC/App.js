@@ -11,6 +11,9 @@ import GameVsPlayer   from './Module/Game/GameVsPlayer';
 import Settings   from './Module/Settings';
 import PrivacyPolicy from "./Module/AboutUs/PrivacyPolicy";
 import Termsconditions from "./Module/AboutUs/Termsconditions";
+import firebase from 'react-native-firebase';
+
+
 
 const store = createStore(reducer);
 
@@ -30,6 +33,10 @@ const RootStack = createStackNavigator(
 );
 
 class App extends React.Component {
+  componentDidMount() {
+    let analytics = firebase.analytics()
+    analytics.setAnalyticsCollectionEnabled(true);
+  }
   render() {
     return (
       <Provider store={store} >

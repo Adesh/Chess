@@ -107,8 +107,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         props.updateGame(
           cell, 
           cleanCellName(chess.moves({square: cell}), iAm), 
-          null//,
-          //null
+          null
         );
     }
 
@@ -121,8 +120,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
           props.updateGame(
             cell, 
             cleanCellName(chess.moves({square: cell})), 
-            null//,
-            //null
+            null
           );
     }  
 
@@ -132,7 +130,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         (selectedPiece === cell || // if clicked self
         possibleMoves.indexOf(cell) === -1)) { // if clicked illeagal move
             console.log("//something already selected, deselect it (self click, illeagal click), if clicked self, ˀif clicked illeagal move");
-            props.updateGame(-1, [], null/*, null*/);
+            props.updateGame(-1, [], null);
     }
     
     //something already selected

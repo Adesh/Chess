@@ -11,6 +11,7 @@ import {
   StackActions, 
   NavigationActions 
 } from 'react-navigation';
+import firebase from 'react-native-firebase';
 
 import { connect } from 'react-redux';
 import PlayerInfo from './PlayerInfo';
@@ -49,7 +50,8 @@ class GameVsPlayer extends Component {
   }
   
   componentDidMount() {
-
+    let analytics = firebase.analytics()
+    analytics.setCurrentScreen('GameVsPlayer');
   }
 
   componentDidUpdate = async () => {

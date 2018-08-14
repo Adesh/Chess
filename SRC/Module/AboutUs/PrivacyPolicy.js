@@ -4,8 +4,12 @@ import {
 } from 'react-native';
 
 class PrivacyPolicy extends Component {
-  
-  render() {
+  componentDidMount() {
+    let analytics = firebase.analytics()
+    analytics.setCurrentScreen('PrivacyPolicy');
+  }
+
+  render() {  
     return ( 
         <WebView
             source={{uri: 'https://sites.google.com/view/chess-privacypolicy/your-page-title'}}

@@ -8,6 +8,7 @@ import {
 } from 'react-navigation';
 
 import API from './API';
+import Toast from './Toast';
 
 const ChessState = {
   
@@ -57,8 +58,7 @@ const ChessState = {
       [
         {text: 'No', onPress: () => {}, style: 'cancel'},
         {text: 'Yes', onPress: this.resetToHome },
-      ],
-      { cancelable: false }
+      ]
     );
   },
   
@@ -68,20 +68,36 @@ const ChessState = {
     updateGame(
       -1, 
       [], 
-      chess.fen()//,
-      //chess.turn()
+      chess.fen()
     );
   },     
 
   undo: (chess,iAm,updateGame) => {
+    
     if(chess.turn() === iAm){
-      updateGame(
-        -1, 
-        [], 
-        chess.undo().undo().fen()//,
-        //chess.turn()
+      Alert.alert(
+        'Undo',
+        'Do you want to undo your last move?',  
+        [
+          {text: 'No', onPress: () => {}, style: 'cancel'},
+          {text: 'Yes', onPress: () => {
+            chess.undo();
+            chess.undo();
+            updateGame(-1, [], chess.fen() )
+          } },
+        ]
       );
+    } else {
+      Toast('Not your turn!');
     }
+
+    /*
+    *   Returning `true` from `onBackButtonPressAndroid` denotes that we have handled the event,
+    *   and react-navigation's lister will not get called, thus not popping the screen.
+    *
+    *   Returning `false` will cause the event to bubble up and react-navigation's listener will pop the screen.
+    * */
+    return true;
   },
 
 };

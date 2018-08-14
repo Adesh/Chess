@@ -29,8 +29,7 @@ const game = (state = initialState, action) => {
                 ...state,
                 selectedPiece : action.selectedPiece, 
                 possibleMoves : action.possibleMoves, 
-                fen : action.fen ? action.fen : state.fen,
-                //turn : action.turn ? action.turn : state.turn,  
+                fen : (action.fen !== null) ? action.fen : state.fen
             }    
         
         default:
