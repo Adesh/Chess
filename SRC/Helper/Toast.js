@@ -1,12 +1,12 @@
 import {
   NativeModules,
-  ToastAndroid
+  ToastAndroid,
+  Platform
 } from 'react-native';
-import GLOBAL from '../Globals';
 
 const Toast = (message, duration = 'short') => {
 
-	if(GLOBAL.PLATFORM == 'ANDROID'){
+	if(Platform.OS == 'android'){
 		return ToastAndroid.show(
 			message, 
 			(duration == 'long') ?

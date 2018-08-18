@@ -32,6 +32,8 @@ const RootStack = createStackNavigator(
   }
 );
 
+const codePushOptions = { checkFrequency: codePush.CheckFrequency.ON_APP_RESUME };
+
 class App extends React.Component {
   componentDidMount() {
     let analytics = firebase.analytics()
@@ -46,4 +48,4 @@ class App extends React.Component {
   }
 }
 
-export default codePush(App)
+export default codePush(codePushOptions)(App)

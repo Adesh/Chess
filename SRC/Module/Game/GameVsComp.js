@@ -181,11 +181,12 @@ const mapDispatchToProps = dispatch => {
       val,
     }),
 
-    onUpdateGame : (selectedPiece, possibleMoves, fen) => dispatch({
+    onUpdateGame : (selectedPiece, possibleMoves, fen, history) => dispatch({
       type: actionTypes.UPDATE_GAME,
       selectedPiece, 
       possibleMoves, 
-      fen
+      fen, 
+      history
     }),
   
   };

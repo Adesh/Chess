@@ -1,5 +1,5 @@
 module.exports = {
-  APP_VERSION: '1.0.0',
+  APP_VERSION: '4.3',
   DEEP_LINK_PROTOCOL: 'chessrt://',
   BASE_URL: 'https://www.Euristico.com/Chess',
   BASE_URL_API: 'https://chess-cool.herokuapp.com/api',

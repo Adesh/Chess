@@ -85,7 +85,7 @@ const getCellColor = (props, cell) => {
 
     // selected piece color
     if(selectedPiece !== -1 && possibleMoves.indexOf(cell) > -1)
-      clr = '#FF9419';
+      clr = '#74c5e8';
 
     return clr;
 };
@@ -104,11 +104,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
     if(selectedPiece === -1){
         if( pieceAtCell && pieceAtCell.color !== iAm ) return;
         console.log("not selected");
-        props.updateGame(
-          cell, 
-          cleanCellName(chess.moves({square: cell}), iAm), 
-          null
-        );
+        props.updateGame( cell, cleanCellName(chess.moves({square: cell}), iAm), null, null );
     }
 
     //something already selected     
@@ -118,10 +114,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         pieceAtCell.color === iAm)) {                        
           console.log("something already selected, or deselect and select new (clicking same color)");
           props.updateGame(
-            cell, 
-            cleanCellName(chess.moves({square: cell})), 
-            null
-          );
+            cell, cleanCellName(chess.moves({square: cell})), null, null );
     }  
 
     //something already selected
@@ -130,7 +123,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         (selectedPiece === cell || // if clicked self
         possibleMoves.indexOf(cell) === -1)) { // if clicked illeagal move
             console.log("//something already selected, deselect it (self click, illeagal click), if clicked self, ˀif clicked illeagal move");
-            props.updateGame(-1, [], null);
+            props.updateGame(-1, [], null, null);
     }
     
     //something already selected

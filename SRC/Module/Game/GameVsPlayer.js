@@ -35,9 +35,9 @@ class GameVsPlayer extends Component {
   chess = new Chess();
   
   FX = new Sound(
-    (Platform.OS !== 'ios') ?
-      'movesound.wav' :
-      '../../Resources/moveSound.wav', 
+    (Platform.OS === 'android') ?
+      'move.wav' :
+      '../../Resources/move.wav', 
     Sound.MAIN_BUNDLE,
     error => console.log('Sound not loaded: ',error) 
   );
@@ -63,7 +63,7 @@ class GameVsPlayer extends Component {
     if( this.chess.game_over() || 
         this.chess.in_threefold_repetition()) {
           const status = ChessState.gameStatus(this.chess,iAm);
-          return ChessState.leaveGame(status, 'Play Again?')
+          return ChessState.leaveGame(status, 'Play Again?',this.resetToHome)
     }
     
     if( this.chess.turn() !== iAm) {
@@ -91,7 +91,7 @@ class GameVsPlayer extends Component {
           />
 
           <TopMenu  
-            leaveGame = {() => ChessState.leaveGame('Leave Game', 'Are you sure about leaving the game?')}
+            leaveGame = {() => ChessState.leaveGame('Leave Game', 'Are you sure about leaving the game?',this.resetToHome)}
             hint = {async () => ChessState.makeMove(this.chess,await ChessState.suggestion(difficulty, fen),this.notify,this.updateGame)}
             undo = {() => ChessState.undo(this.chess,iAm,this.updateGame)}
             navigate = {this.props.navigation.navigate}
@@ -139,13 +139,13 @@ class GameVsPlayer extends Component {
     }    
   };
 
-  resetToHome = (navigation) => {
+  resetToHome = () => {
     const resetAction = StackActions.reset({
       index: 0,
       actions: [NavigationActions.navigate({ routeName: 'Welcome' })],
     });
-
-    return navigation.dispatch(resetAction);
+    console.log(this.props.navigation,resetAction)
+    this.props.navigation.dispatch(resetAction);
   };
 
   updateGame = this.props.onUpdateGame;

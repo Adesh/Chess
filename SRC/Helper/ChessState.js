@@ -7,6 +7,8 @@ import {
   NavigationActions 
 } from 'react-navigation';
 
+import { Chess } from 'chess.js/chess';
+
 import API from './API';
 import Toast from './Toast';
 
@@ -51,45 +53,45 @@ const ChessState = {
       return 'Threefold repetition';  
   },
 
-  leaveGame: (title, msg) => {
+  leaveGame: (title, msg, resetToHome) => {
     return Alert.alert(
       title,
       msg,  
       [
         {text: 'No', onPress: () => {}, style: 'cancel'},
-        {text: 'Yes', onPress: this.resetToHome },
+        {text: 'Yes', onPress: ()=>resetToHome() },
       ]
     );
   },
   
   makeMove: (chess,suggestion,notify,updateGame) => {
     chess.move({ ...suggestion });
+    const fen = chess.fen();
     notify();
-    updateGame(
-      -1, 
-      [], 
-      chess.fen()
-    );
+    updateGame( -1, [], fen, [...history].push(fen) );
   },     
 
-  undo: (chess,iAm,updateGame) => {
-    
-    if(chess.turn() === iAm){
+  undo: (chess, iAm, updateGame, history) => {    
+    setTimeout(() => {
+      if(chess.turn() !== iAm)
+      return Toast('Not your turn!');
+      
+      if(history.length < 1)
+      return Toast('Not moves to undo yet!');
+      
+      let history = [...history];
+      history.pop();
+      const lastFen = history.pop();
+  
       Alert.alert(
         'Undo',
         'Do you want to undo your last move?',  
         [
-          {text: 'No', onPress: () => {}, style: 'cancel'},
-          {text: 'Yes', onPress: () => {
-            chess.undo();
-            chess.undo();
-            updateGame(-1, [], chess.fen() )
-          } },
+            {text: 'No', onPress: () => {}, style: 'cancel'},
+            {text: 'Yes', onPress: () => updateGame(-1, [], lastFen, history) },
         ]
       );
-    } else {
-      Toast('Not your turn!');
-    }
+    }, 5);
 
     /*
     *   Returning `true` from `onBackButtonPressAndroid` denotes that we have handled the event,
