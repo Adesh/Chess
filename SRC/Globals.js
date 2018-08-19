@@ -1,21 +1,24 @@
 module.exports = {
   APP_VERSION: '4.3',
   DEEP_LINK_PROTOCOL: 'chessrt://',
+  
   BASE_URL: 'https://www.Euristico.com/Chess',
   BASE_URL_API: 'https://chess-cool.herokuapp.com/api',
-  ABOUT_US_URL: this.BASE_URL+'AboutUs',  
-  PRIVACY_POLICY_URL: this.BASE_URL+'privacypolicy',
-  COOKIE_POLICY_URL: this.BASE_URL+'cookiepolicy',
-  TERMS_OF_USE_URL: this.BASE_URL+'termsofuse',
+  
+  PLAYSTORE_DEEPLINK: 'market://details?id=com.euristico.chess',
+  PLAYSTORE_URL: 'https://play.google.com/store/apps/details?id=com.euristico.chess',
+  ABOUT_URL: this.BASE_URL+'AboutUs',  
+  PRIVACY_POLICY_URL: 'https://sites.google.com/view/chess-privacypolicy/your-page-title',
+  TERMS_URL: 'https://sites.google.com/view/chess-termsconditions/home',
   
   APP_SETTING:{
     DEFAULT: {
       difficulty: 8, // Beginer:5, Pro:8, GrandMaster: 10
   		sound: true,
   		vibration: true,
+      showPossMoves: true,
+      showLastMove: true,
       showCellId: true,
-      showLastMove: false,
-      showCellId: false,
     },
   },
 

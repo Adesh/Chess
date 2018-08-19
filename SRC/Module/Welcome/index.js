@@ -6,15 +6,19 @@ import {
   Image,
   Dimensions,
   StatusBar,
-  AsyncStorage
+  AsyncStorage,
+  Linking,
+  Clipboard
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
+import Icon2 from 'react-native-vector-icons/Entypo';
 import { connect } from 'react-redux';
 import firebase from 'react-native-firebase';
 
 import * as actionTypes from '../../actions';
 import Button from '../../Helper/Button';
+import Toast from '../../Helper/Toast';
 import GLOBAL from '../../Globals';
 
 
@@ -27,25 +31,36 @@ const { width } = Dimensions.get('window');
 
 class Welcome extends Component {  
   async componentDidMount() {
-    firebase.admob('ca-app-pub-8926092521677174~1925275591')
+    //firebase.admob('ca-app-pub-8926092521677174~1925275591')
     let analytics = firebase.analytics()
     analytics.setCurrentScreen('Welcome');
 
-    const settings = [ 'difficulty', 'sound', 'vibration', 'showCellId', 'showLastMove' ];
+    const settings = [ 
+      'difficulty', 
+      'sound', 
+      'vibration', 
+      'showCellId', 
+      'showLastMove', 
+      'showPossMoves', 
+      'showCellId' 
+    ];
+
     for(let setting of settings) {
       const val = await AsyncStorage.getItem(setting);
       
-      if(val == null) {
-        await AsyncStorage.setItem(setting, GLOBAL.APP_SETTING.DEFAULT[setting].toString())
-      } else {
-        let parseAuˀto = (val) => {
-          if(val === 'true') return true;
-          if(val === 'false') return false;
-          if(!isNaN(val)) return parseInt(val);
-          return val;
-        }
-        this.props.onSettingsChange(setting,parseAuto(val));
+      if(!val) {
+        await AsyncStorage.setItem(setting, GLOBAL.APP_SETTING.DEFAULT[setting].toString());
+        continue;
+      } 
+      
+      let parseAuto = (val) => {
+        if(val === 'true') return true;
+        if(val === 'false') return false;
+        if(!isNaN(val)) return parseInt(val);
+        return val;
       }
+      this.props.onSettingsChange(setting,parseAuto(val));
+      
     }
   }
 
@@ -113,21 +128,35 @@ class Welcome extends Component {
 
           <View style={{flex:1}}/>
 
-          {Button(
-            <Icon 
-              name='md-settings'
-              size={GLOBAL.FONT.HEADER}
-              color={GLOBAL.COLOR.THEME['swan'].secondaryText}
-            />,
-            ()=>this.navigate('Settings'),
-            {marginVertical:5,paddingVertical:5}
-          )}
-
-          
+          <View style={styles.btnView2}>
+              <Icon.Button 
+                name='md-settings'
+                size={GLOBAL.FONT.HEADER}
+                color={GLOBAL.COLOR.THEME['swan'].secondaryText}
+                backgroundColor="transparent"
+                onPress={()=>this.navigate('Settings')}
+              />
+              <View style={{paddingHorizontal: 30}} />
+              <Icon.Button 
+                name='md-share'
+                size={GLOBAL.FONT.HEADER}
+                color={GLOBAL.COLOR.THEME['swan'].secondaryText}
+                backgroundColor="transparent"
+                onPress={this.share}
+              />
+              <View style={{paddingHorizontal: 30}} />
+              <Icon2.Button 
+                name='google-play'
+                size={GLOBAL.FONT.HEADER}
+                color={GLOBAL.COLOR.THEME['swan'].secondaryText}
+                backgroundColor="transparent"
+                onPress={this.GooglePlay}
+              />
+          </View>
 
           <Text style={styles.footer}>
             <Text onPress={()=>this.navigate('PrivacyPolicy')} style={styles.footerTxt}>Privacy Policy</Text>
-            <Text>{', '}</Text> 
+            <Text>{'  |  '}</Text> 
             <Text onPress={()=>this.navigate('Termsconditions')} style={styles.footerTxt}>Terms & Conditions</Text>
           </Text>
           
@@ -137,9 +166,7 @@ class Welcome extends Component {
             unitId={'ca-app-pub-8926092521677174/5743857831'}
             size={"LARGE_BANNER"}
             request={request.build()}
-            onAdLoaded={() => {
-              console.log('Advert loaded');
-            }}
+            onAdLoaded={() => console.log('Advert loaded')}
           />
         </View>  
     );
@@ -149,6 +176,21 @@ class Welcome extends Component {
     this.props.navigation.navigate(route);
   }
   
+  share = () => {
+    Clipboard.setString(GLOBAL.PLAYSTORE_URL);
+    Toast('Url Copied');
+  };
+
+  GooglePlay = () => {
+    Linking.canOpenURL(GLOBAL.PLAYSTORE_DEEPLINK)
+    .then(supported => {
+      if (supported)
+      return Linking.openURL(GLOBAL.PLAYSTORE_DEEPLINK);
+      return Linking.openURL(GLOBAL.PLAYSTORE_URL);
+    })
+    .catch(err => {});
+  };
+
 };
 
 const mapStateToProps = state => {
@@ -181,7 +223,7 @@ const styles = StyleSheet.create({
     color: GLOBAL.COLOR.PRIMARY,  
   },
   subHeadingTxt:{
-    fontSize:GLOBAL.FONT.SUB_HEADER,
+    //fontSize:GLOBAL.FONT.SUB_HEADER,
     color: GLOBAL.COLOR.secondaryText,
   },
   footer:{
@@ -193,7 +235,7 @@ const styles = StyleSheet.create({
   footerTxt:{
     color: GLOBAL.COLOR.THEME['swan'].secondaryText,
     textAlign:'center',
-    fontSize:GLOBAL.FONT.FONT_H3,
+    //fontSize:GLOBAL.FONT.FONT_H3,
     color: GLOBAL.COLOR.secondaryText,
     marginHorizontal:5,
   },
@@ -209,6 +251,13 @@ const styles = StyleSheet.create({
     justifyContent:'space-around',
     paddingVertical:5,
     borderRadius:2,
+  },
+  btnView2: {
+    //height:
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'center',
+    paddingVertical:10
   },
   btnTxt:{
     color: GLOBAL.COLOR.THEME['swan'].textPrimary,

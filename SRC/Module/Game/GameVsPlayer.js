@@ -74,6 +74,7 @@ class GameVsPlayer extends Component {
   
   render() {
     this.chess.load(this.props.game.fen);
+    
     let {
       possibleMoves,
       selectedPiece,
@@ -81,7 +82,14 @@ class GameVsPlayer extends Component {
       difficulty,
       fen
     } = this.props.game;
+
+    let {
+      showPossMoves,
+      showLastMove
+    } = this.props.settings;
+
     const ifWhiteSideBoard = true;//iAm == 'w';
+    
     return (
         <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
           
@@ -91,7 +99,7 @@ class GameVsPlayer extends Component {
           />
 
           <TopMenu  
-            leaveGame = {() => ChessState.leaveGame('Leave Game', 'Are you sure about leaving the game?',this.resetToHome)}
+            leaveGame = {() => ChessState.leaveGame('Leave Game', 'Are you sure about leaving the game?',()=>{console.log('reset',this.resetToHome);this.resetToHome()})}
             hint = {async () => ChessState.makeMove(this.chess,await ChessState.suggestion(difficulty, fen),this.notify,this.updateGame)}
             undo = {() => ChessState.undo(this.chess,iAm,this.updateGame)}
             navigate = {this.props.navigation.navigate}
@@ -112,7 +120,9 @@ class GameVsPlayer extends Component {
                   selectedPiece, 
                   iAm, 
                   updateGame:this.updateGame,     
-                  makeMove: (suggestion) => ChessState.makeMove(this.chess,suggestion,this.notify,this.updateGame)
+                  makeMove: (suggestion) => ChessState.makeMove(this.chess,suggestion,this.notify,this.updateGame),
+                  showPossMoves,
+                  showLastMove,
                 }, 
                 ifWhiteSideBoard
             )}
@@ -144,7 +154,7 @@ class GameVsPlayer extends Component {
       index: 0,
       actions: [NavigationActions.navigate({ routeName: 'Welcome' })],
     });
-    console.log(this.props.navigation,resetAction)
+    //console.log(this.props.navigation,resetAction)
     this.props.navigation.dispatch(resetAction);
   };
 

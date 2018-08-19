@@ -4,6 +4,8 @@ import {
 } from 'react-native';
 import firebase from 'react-native-firebase';
 
+import GLOBAL from '../../Globals';
+
 class Copyrights extends Component {
   componentDidMount() {
     let analytics = firebase.analytics()
@@ -12,7 +14,7 @@ class Copyrights extends Component {
   render() {
     return ( 
         <WebView
-            source={{uri: 'https://sites.google.com/view/chess-termsconditions/home'}}
+            source={{uri: GLOBAL.TERMS_URL}}
             style={{marginTop: 20}}
         />  
     );

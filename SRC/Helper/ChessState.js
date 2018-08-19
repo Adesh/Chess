@@ -7,8 +7,6 @@ import {
   NavigationActions 
 } from 'react-navigation';
 
-import { Chess } from 'chess.js/chess';
-
 import API from './API';
 import Toast from './Toast';
 
@@ -36,7 +34,7 @@ const ChessState = {
     };
   },
 
-  gameStatus: (chess,iAm) => {
+  gameStatus: (chess, iAm) => {
     if(chess.in_checkmate() && chess.turn() !== iAm)
       return 'Checkmate, You win!';
 
@@ -59,19 +57,21 @@ const ChessState = {
       msg,  
       [
         {text: 'No', onPress: () => {}, style: 'cancel'},
-        {text: 'Yes', onPress: ()=>resetToHome() },
+        {text: 'Yes', onPress: resetToHome },
       ]
     );
   },
   
-  makeMove: (chess,suggestion,notify,updateGame) => {
+  makeMove: (chess, suggestion, notify, updateGame, history, moves) => {
     chess.move({ ...suggestion });
     const fen = chess.fen();
     notify();
-    updateGame( -1, [], fen, [...history].push(fen) );
+    history.push(fen)
+    moves.push(suggestion)
+    updateGame( -1, [], fen, [...history], [...moves]);
   },     
 
-  undo: (chess, iAm, updateGame, history) => {    
+  undo: (chess, iAm, updateGame, history, moves) => {    
     setTimeout(() => {
       if(chess.turn() !== iAm)
       return Toast('Not your turn!');
@@ -79,16 +79,24 @@ const ChessState = {
       if(history.length < 1)
       return Toast('Not moves to undo yet!');
       
-      let history = [...history];
-      history.pop();
-      const lastFen = history.pop();
-  
       Alert.alert(
         'Undo',
         'Do you want to undo your last move?',  
         [
             {text: 'No', onPress: () => {}, style: 'cancel'},
-            {text: 'Yes', onPress: () => updateGame(-1, [], lastFen, history) },
+            {text: 'Yes', onPress: () => {
+                
+                let historyNew = [...history];
+                historyNew.pop();
+                historyNew.pop();
+
+                let movesNew = [...moves];
+                movesNew.pop();
+                movesNew.pop();
+
+                updateGame(-1, [], historyNew[historyNew.length-1], historyNew, movesNew) 
+              }
+            },
         ]
       );
     }, 5);

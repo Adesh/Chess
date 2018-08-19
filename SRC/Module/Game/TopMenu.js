@@ -66,7 +66,8 @@ const styles = StyleSheet.create({
   container: {
     width:width,
     flexDirection:'row',
-    paddingTop:20
+    padding:10,
+    backgroundColor:'#efefef'
   },
   btn:{
     padding:5,

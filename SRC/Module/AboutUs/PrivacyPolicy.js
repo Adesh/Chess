@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 import {
   WebView,
 } from 'react-native';
+import firebase from 'react-native-firebase';
+
+import GLOBAL from '../../Globals';
 
 class PrivacyPolicy extends Component {
   componentDidMount() {
@@ -12,7 +15,7 @@ class PrivacyPolicy extends Component {
   render() {  
     return ( 
         <WebView
-            source={{uri: 'https://sites.google.com/view/chess-privacypolicy/your-page-title'}}
+            source={{uri: GLOBAL.PRIVACY_POLICY_URL}}
             style={{marginTop: 20}}
         />  
     );

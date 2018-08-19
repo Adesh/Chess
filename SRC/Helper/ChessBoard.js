@@ -7,6 +7,7 @@ import {
   } from 'react-native';
 import ChessPiece from './ChessPiece';
 import Button from './Button';
+import { Chess } from 'chess.js';
 const GLOBAL = require ('../Globals');
 
 const { width } = Dimensions.get('window');
@@ -37,14 +38,13 @@ const BLACK_CELLS = [
 
 const transpose = array => array[0].map((col, i) => array.map(row => row[i]));
 
-const ChessBoard = (chess, props, ifWhiteSideBoard, showCellId ) => {
+const ChessBoard = (chess, props, ifWhiteSideBoard, settings ) => {
     let board = [];
-
     for(let i of ROWS){
         for(let j of COLUMNS) {          
           const cell = j+i;
           const pieceAtCell = chess.get(cell);
-          board.push(getCell(chess, props, cell, pieceAtCell, showCellId));
+          board.push(getCell(chess, props, cell, pieceAtCell, settings));
         }
     }
     
@@ -54,16 +54,16 @@ const ChessBoard = (chess, props, ifWhiteSideBoard, showCellId ) => {
     return transpose(transpose(board));
 };
 
-const getCell = (chess, props, cell, pieceAtCell, showCellId) => {
+const getCell = (chess, props, cell, pieceAtCell, settings) => {
     return <View key={cell}> 
         {Button(
             <View 
                 style={[styles.btn, {
-                    backgroundColor:getCellColor(props, cell)
+                    backgroundColor:getCellColor(props, cell, settings)
                 }]} 
             >
                 <ChessPiece piece={pieceAtCell} />   
-            {showCellId?<Text style={styles.cellId}>{cell}</Text>:null} 
+            {!settings.showCellId ? null : <Text style={styles.cellId}>{cell}</Text>} 
             </View>,
             () => getCellHandler(chess, props, cell, pieceAtCell),
             styles.btn
@@ -71,21 +71,42 @@ const getCell = (chess, props, cell, pieceAtCell, showCellId) => {
     </View>;
 };
 
-const getCellColor = (props, cell) => {      
+const getCellColor = (props, cell, settings) => {      
     let clr;
-    let {
+    
+    const { 
         possibleMoves, 
-        selectedPiece
+        selectedPiece,
+        moves
     } = props;
     
-    // base color
-    clr = (WHITE_CELLS.indexOf(cell) > -1) ?
-            GLOBAL.COLOR.CELL_LIGHT :
-            GLOBAL.COLOR.CELL_DARK;
+    const {
+        showPossMoves,
+        showLastMove,
+    } = settings;
 
-    // selected piece color
-    if(selectedPiece !== -1 && possibleMoves.indexOf(cell) > -1)
-      clr = '#74c5e8';
+    // base color
+    clr = GLOBAL.COLOR[ 
+        (WHITE_CELLS.indexOf(cell) > -1) ? 
+        'CELL_LIGHT' : 
+        'CELL_DARK' 
+    ];
+
+    // last move
+    if( showLastMove && 
+        moves &&
+        moves[moves.length-1] && 
+        (moves[moves.length-1].from == cell || moves[moves.length-1].to == cell) 
+    ) clr = '#47e8c5';
+
+    // poss move piece color
+    if( showPossMoves && 
+        selectedPiece !== -1 && 
+        possibleMoves.indexOf(cell) > -1
+    ) clr = '#74c5e8';
+      
+    if( selectedPiece === cell ) 
+    clr = '#74c5e8';
 
     return clr;
 };
@@ -97,14 +118,16 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
     const { 
         selectedPiece, 
         iAm, 
-        possibleMoves 
+        possibleMoves,
+        history,
+        moves 
     } = props;
-
+   
     //not selected
     if(selectedPiece === -1){
         if( pieceAtCell && pieceAtCell.color !== iAm ) return;
         console.log("not selected");
-        props.updateGame( cell, cleanCellName(chess.moves({square: cell}), iAm), null, null );
+        props.updateGame( cell, cleanCellName(chess.moves({square: cell}), iAm), null, null, null );
     }
 
     //something already selected     
@@ -114,8 +137,8 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         pieceAtCell.color === iAm)) {                        
           console.log("something already selected, or deselect and select new (clicking same color)");
           props.updateGame(
-            cell, cleanCellName(chess.moves({square: cell})), null, null );
-    }  
+            cell, cleanCellName(chess.moves({square: cell})), null, null, null );
+    } 
 
     //something already selected
     //deselect it (self click, illeagal click)
@@ -123,7 +146,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         (selectedPiece === cell || // if clicked self
         possibleMoves.indexOf(cell) === -1)) { // if clicked illeagal move
             console.log("//something already selected, deselect it (self click, illeagal click), if clicked self, ˀif clicked illeagal move");
-            props.updateGame(-1, [], null, null);
+            props.updateGame(-1, [], null, null, null);
     }
     
     //something already selected
@@ -143,7 +166,9 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
         return props.makeMove({
           from: selectedPiece, 
           to: cell,
-          promotion
+          promotion,
+          history,
+          moves
         }); 
     }
 };    

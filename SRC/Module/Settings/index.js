@@ -31,8 +31,8 @@ class Settings extends Component {
     let analytics = firebase.analytics()
     analytics.setCurrentScreen('Settings');
   }
+  
   render() {
-    console.log(this.props.settings.difficulty);
     return (
       <View style={[styles.maincontainer,{backgroundColor: GLOBAL.COLOR.THEME['swan'].defaultPrimary}]}>
       	
@@ -46,7 +46,7 @@ class Settings extends Component {
         	<View style={styles.settingItem}>
         		<Text>Difficulty</Text>
             <Picker
-      				  selectedValue={this.props.settings.difficulty}
+      				  selectedValue={this.props.settings.difficulty.toString()}
       				  onValueChange={d => this.updateSetting('difficulty',d)}
                 style={{ height: 45, width: 130, alignItems:'flex-end',justifyContent:'flex-end' }}
             >
@@ -77,9 +77,9 @@ class Settings extends Component {
           <View style={styles.settingItem}>
             <Text>Show Possible Moves</Text>
             <Switch
-              onValueChange={val => this.updateSetting('showCellId',val)}
+              onValueChange={val => this.updateSetting('showPossMoves',val)}
               style={{marginBottom: 10}}
-              value={this.props.settings.showCellId} 
+              value={this.props.settings.showPossMoves} 
             />
           </View>
 
@@ -105,7 +105,7 @@ class Settings extends Component {
 
         <View style={{justifyContent:'flex-end',alignItems:'center'}}>
           {Button(
-            <Text style={{}}>{'Clear States & Data'}</Text>,
+            <Text>{'Clear States & Data'}</Text>,
             this._clearAllData,
             {margin:10,padding:10,backgroundColor:'#f6f6f6'}
           )}
@@ -115,9 +115,7 @@ class Settings extends Component {
             unitId={'ca-app-pub-8926092521677174/3039880861'}
             size={"LARGE_BANNER"}
             request={request.build()}
-            onAdLoaded={() => {
-              console.log('Advert loaded');
-            }}
+            onAdLoaded={() => console.log('Advert loaded')}
         />
 
       </View>
