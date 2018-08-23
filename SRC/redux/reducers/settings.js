@@ -1,5 +1,5 @@
 import * as actionTypes from '../actions';
-import GLOBAL    from '../Globals';
+import GLOBAL    from '../../Globals';
 
 const initialState = {
     difficulty: GLOBAL.APP_SETTING.DEFAULT.difficulty, //'8', // Beginer:5, Pro:8, GrandMaster: 10

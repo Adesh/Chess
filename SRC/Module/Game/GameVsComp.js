@@ -24,8 +24,9 @@ import ChessBoard from '../../Helper/ChessBoard';
 import ChessState from '../../Helper/ChessState';
 import { Chess } from 'chess.js/chess';
 import Sound from 'react-native-sound';
-import * as actionTypes from '../../actions';
+import * as actionTypes from '../../redux/actions';
 import firebase from 'react-native-firebase';
+import Toast from '../../Helper/Toast';
 const { width } = Dimensions.get('window');
 
 class GameVsComp extends Component { 
@@ -121,15 +122,22 @@ class GameVsComp extends Component {
     let {
       fen,
       history,
-      moves
+      moves,
+      iAm
     } = this.props.game;
 
     let {
       difficulty
     } = this.props.settings;
 
-    const suggestion = await ChessState.suggestion(difficulty, fen);
+    this.chess.load(fen);
+    if( this.chess.turn() !== iAm)
+    return Toast('Not your turn!');
 
+    Toast('Please wait...');
+    
+    const suggestion = await ChessState.suggestion(difficulty, fen);
+    
     Alert.alert(
       'Hint',
       `Do you want to move ${suggestion.from} to ${suggestion.to}?`,  
@@ -194,6 +202,7 @@ class GameVsComp extends Component {
               moves
             )}
             navigate = {this.props.navigation.navigate}
+            myTurn={this.chess.turn() === iAm}
           />  
 
           <PlayerInfo 

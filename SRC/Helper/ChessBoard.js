@@ -125,6 +125,7 @@ const getCellHandler = (chess, props, cell, pieceAtCell) => {
    
     //not selected
     if(selectedPiece === -1){
+        if( !pieceAtCell ) return;
         if( pieceAtCell && pieceAtCell.color !== iAm ) return;
         console.log("not selected");
         props.updateGame( cell, cleanCellName(chess.moves({square: cell}), iAm), null, null, null );

@@ -32,7 +32,7 @@ export default TopMenu  = (props) => {
           <Icon 
             name={'md-help'} 
             size={30} 
-            color={GLOBAL.COLOR.THEME['swan'].secondaryText}
+            color={props.myTurn ? GLOBAL.COLOR.THEME['swan'].secondaryText : 'lightgrey' }
           />,
           props.hint,
           [styles.btn, {paddingRight:20}]

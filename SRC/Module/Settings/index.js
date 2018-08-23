@@ -16,7 +16,7 @@ import firebase from 'react-native-firebase';
 
 import GLOBAL from '../../Globals';
 import Button from '../../Helper/Button';
-import * as actionTypes from '../../actions';
+import * as actionTypes from '../../redux/actions';
 
 const Banner = firebase.admob.Banner;
 const AdRequest = firebase.admob.AdRequest;

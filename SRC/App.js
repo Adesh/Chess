@@ -3,15 +3,16 @@ import { createStackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import codePush from "react-native-code-push";
+import firebase from 'react-native-firebase';
 
-import reducer from './reducers';
+import reducer from './redux/reducers';
 import Welcome      from './Module/Welcome';
 import GameVsComp   from './Module/Game/GameVsComp';
 import GameVsPlayer   from './Module/Game/GameVsPlayer';
 import Settings   from './Module/Settings';
 import PrivacyPolicy from "./Module/AboutUs/PrivacyPolicy";
 import Termsconditions from "./Module/AboutUs/Termsconditions";
-import firebase from 'react-native-firebase';
+
 
 
 

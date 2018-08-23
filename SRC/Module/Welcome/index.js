@@ -8,7 +8,7 @@ import {
   StatusBar,
   AsyncStorage,
   Linking,
-  Clipboard
+  Clipboard,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -16,7 +16,7 @@ import Icon2 from 'react-native-vector-icons/Entypo';
 import { connect } from 'react-redux';
 import firebase from 'react-native-firebase';
 
-import * as actionTypes from '../../actions';
+import * as actionTypes from '../../redux/actions';
 import Button from '../../Helper/Button';
 import Toast from '../../Helper/Toast';
 import GLOBAL from '../../Globals';
@@ -109,7 +109,7 @@ class Welcome extends Component {
           )}
 
           {Button(
-            <View style={styles.btnView}>
+            <View style={[styles.btnView, {backgroundColor:'#777'}]}>
               <Icon 
                 name='md-person'
                 size={GLOBAL.FONT.HEADER}
@@ -122,7 +122,10 @@ class Welcome extends Component {
                 color={GLOBAL.COLOR.THEME['swan'].textPrimary}
               />
             </View>,
-            ()=>this.navigate('GameVsPlayer'),
+            ()=>{
+              return Toast('Feature Coming Soon!');
+              this.navigate('GameVsPlayer');
+            },
             {marginBottom:10}
           )}
 
@@ -155,9 +158,9 @@ class Welcome extends Component {
           </View>
 
           <Text style={styles.footer}>
-            <Text onPress={()=>this.navigate('PrivacyPolicy')} style={styles.footerTxt}>Privacy Policy</Text>
+            <Text onPress={()=>this.navigate('PrivacyPolicy')} style={styles.footerTxt}>{`Privacy Policy`}</Text>
             <Text>{'  |  '}</Text> 
-            <Text onPress={()=>this.navigate('Termsconditions')} style={styles.footerTxt}>Terms & Conditions</Text>
+            <Text onPress={()=>this.navigate('Termsconditions')} style={styles.footerTxt}>{`Terms & Conditions`}</Text>
           </Text>
           
           <View style={{flex:1}}/>
@@ -178,7 +181,7 @@ class Welcome extends Component {
   
   share = () => {
     Clipboard.setString(GLOBAL.PLAYSTORE_URL);
-    Toast('Url Copied');
+    Toast('Url Copied!');
   };
 
   GooglePlay = () => {

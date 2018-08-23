@@ -22,7 +22,7 @@ import ChessState from '../../Helper/ChessState';
 
 import { Chess } from 'chess.js/chess';
 import Sound from 'react-native-sound';
-import * as actionTypes from '../../actions';
+import * as actionTypes from '../../redux/actions';
 
 // eventually move this file to Socket.js, remove state and use redux
 import SocketIOClient from 'socket.io-client';
