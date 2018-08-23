@@ -163,12 +163,11 @@ class Welcome extends Component {
             <Text onPress={()=>this.navigate('Termsconditions')} style={styles.footerTxt}>{`Terms & Conditions`}</Text>
             <Text>{` | `}</Text>
             <Text onPress={()=>{
-              Linking.canOpenURL(GLOBAL.GITHUB)
-              .then(supported => {
-                return (!supported) ? 
-                  Toast('Can\'t handle url: ' + url) : 
-                  Linking.openURL(url);
-              }).catch(err => {});
+              try {
+                Linking.openURL(GLOBAL.GITHUB);
+              } catch(e) {
+                Toast(`Visit: ${GLOBAL.GITHUB}`);
+              }
             }} style={styles.footerTxt} >Github</Text>
           </Text>
           
