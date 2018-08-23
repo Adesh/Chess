@@ -10,6 +10,7 @@ module.exports = {
   ABOUT_URL: this.BASE_URL+'AboutUs',  
   PRIVACY_POLICY_URL: 'https://sites.google.com/view/chess-privacypolicy/your-page-title',
   TERMS_URL: 'https://sites.google.com/view/chess-termsconditions/home',
+  GITHUB: 'https://www.github.com/Adesh/Chess',
   
   APP_SETTING:{
     DEFAULT: {

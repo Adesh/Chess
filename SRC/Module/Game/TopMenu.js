@@ -42,7 +42,7 @@ export default TopMenu  = (props) => {
           <Icon 
             name={'md-undo'} 
             size={30} 
-            color={GLOBAL.COLOR.THEME['swan'].secondaryText}
+            color={props.myTurn ? GLOBAL.COLOR.THEME['swan'].secondaryText : 'lightgrey' }
           />,
           props.undo,
           [styles.btn, {paddingRight:20}]

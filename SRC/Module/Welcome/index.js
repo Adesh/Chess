@@ -161,6 +161,15 @@ class Welcome extends Component {
             <Text onPress={()=>this.navigate('PrivacyPolicy')} style={styles.footerTxt}>{`Privacy Policy`}</Text>
             <Text>{'  |  '}</Text> 
             <Text onPress={()=>this.navigate('Termsconditions')} style={styles.footerTxt}>{`Terms & Conditions`}</Text>
+            <Text>{` | `}</Text>
+            <Text onPress={()=>{
+              Linking.canOpenURL(GLOBAL.GITHUB)
+              .then(supported => {
+                return (!supported) ? 
+                  Toast('Can\'t handle url: ' + url) : 
+                  Linking.openURL(url);
+              }).catch(err => {});
+            }} style={styles.footerTxt} >Github</Text>
           </Text>
           
           <View style={{flex:1}}/>

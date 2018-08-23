@@ -32,3 +32,5 @@ SRC/store/.DS_Store
 
 
 .env
+
+push.sh
