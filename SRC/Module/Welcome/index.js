@@ -166,7 +166,7 @@ class Welcome extends Component {
               try {
                 Linking.openURL(GLOBAL.GITHUB);
               } catch(e) {
-                Toast(`Visit: ${GLOBAL.GITHUB}`);
+                Toast(`Visit : ${GLOBAL.GITHUB}`);
               }
             }} style={styles.footerTxt} >Github</Text>
           </Text>
